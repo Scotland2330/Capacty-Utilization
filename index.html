@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tax Resolution Capacity Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* ADVISORY / TAX RESOLUTION PALETTE */
+  --navy: #1b2a4a;
+  --navy-dark: #101a30;
+  --navy-light: #2d4373;
+  --gold: #c8961e;
+  --gold-dark: #9c7415;
+  --gold-light: #e0b54a;
+  --black: #0c0f16;
+
+  --bg: #eef1f6;
+  --bg-paper: #ffffff;
+  --bg-soft: #f6f8fb;
+  --ink: #0c0f16;
+  --ink-soft: #283248;
+  --ink-muted: #5a6477;
+  --ink-faint: #97a0b3;
+  --line: #d4dae6;
+  --line-soft: #e7ebf2;
+  --line-strong: #b3bccd;
+
+  /* SEMANTIC */
+  --ok: #2f7d5b;          /* capacity available -> SELL / take more cases */
+  --ok-bg: #d9ece2;
+  --ok-bg-soft: #eaf4ef;
+  --warn: #b9831a;        /* HOLD */
+  --warn-bg: #fbeccb;
+  --warn-bg-soft: #fdf5e3;
+  --alert: #b3402e;       /* over capacity -> HIRE / pause intake */
+  --alert-bg: #f4d8d1;
+  --alert-bg-soft: #fae9e4;
+
+  --display: 'Oswald', Impact, sans-serif;
+  --body: 'Inter', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+
+  --r-sm: 4px;
+  --r: 8px;
+  --r-lg: 12px;
+
+  --shadow-sm: 0 1px 2px rgba(12,15,22,0.05);
+  --shadow: 0 1px 3px rgba(12,15,22,0.08), 0 4px 14px rgba(12,15,22,0.04);
+  --shadow-lg: 0 4px 30px rgba(12,15,22,0.18);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+
+/* ====== HEADER ====== */
+.header {
+  background: var(--navy-dark);
+  padding: 16px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 0 var(--gold), var(--shadow);
+}
+.brand { display: flex; align-items: center; gap: 16px; }
+.brand-mark {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-weight: 700; font-size: 22px; color: var(--navy-dark);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
+}
+.brand-text { display: flex; flex-direction: column; }
+.brand-app {
+  font-family: var(--display); font-weight: 600; font-size: 20px;
+  letter-spacing: 0.05em; color: var(--gold-light); text-transform: uppercase; line-height: 1;
+}
+.brand-tag {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: #aeb6c6; margin-top: 5px;
+}
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
+  border-radius: var(--r-sm); font-size: 12px; font-weight: 600; letter-spacing: 0.03em;
+  border: 1px solid #38445e; background: #1d2942; color: #d9deea;
+  transition: all 0.15s ease; text-transform: uppercase; font-family: var(--body);
+}
+.btn:hover { background: #283655; border-color: #4a597a; color: #fff; }
+.btn-primary { background: var(--gold); color: var(--navy-dark); border-color: var(--gold); }
+.btn-primary:hover { background: var(--gold-light); border-color: var(--gold-light); color: var(--navy-dark); }
+.btn-sm { padding: 6px 12px; font-size: 11px; }
+
+/* ====== TABS ====== */
+.tabs {
+  border-bottom: 1px solid var(--line); padding: 0 28px; background: var(--bg-paper);
+  display: flex; gap: 0; overflow-x: auto; position: sticky; top: 76px; z-index: 40;
+  box-shadow: var(--shadow-sm);
+}
+.tab {
+  padding: 14px 18px; font-size: 13px; font-weight: 600; color: var(--ink-muted);
+  border-bottom: 3px solid transparent; white-space: nowrap; display: flex; align-items: center;
+  gap: 8px; transition: all 0.15s ease; letter-spacing: 0.02em;
+}
+.tab:hover { color: var(--ink); background: var(--bg-soft); }
+.tab.active { color: var(--navy); border-bottom-color: var(--gold); background: var(--bg-soft); }
+.tab-num { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); font-weight: 700; }
+.tab.active .tab-num { color: var(--gold-dark); }
+
+/* ====== MAIN / PANELS ====== */
+.main { padding: 28px; max-width: 1640px; margin: 0 auto; }
+.panel {
+  background: var(--bg-paper); border: 1px solid var(--line); border-radius: var(--r-lg);
+  margin-bottom: 24px; overflow: hidden; box-shadow: var(--shadow-sm);
+}
+.panel-head {
+  padding: 22px 26px 18px; border-bottom: 1px solid var(--line-soft);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+  background: linear-gradient(to bottom, var(--bg-soft), var(--bg-paper));
+}
+.panel-title {
+  font-family: var(--display); font-weight: 600; font-size: 26px; letter-spacing: 0.01em;
+  color: var(--navy); line-height: 1.1; text-transform: uppercase;
+}
+.panel-subtitle { font-size: 13px; color: var(--ink-muted); margin-top: 8px; max-width: 820px; line-height: 1.55; }
+.panel-body { padding: 24px 26px; }
+.panel-eyebrow {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gold-dark); font-weight: 700; margin-bottom: 8px;
+}
+
+/* ====== DASH CONTROLS ====== */
+.dash-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.month-pills { display: flex; gap: 1px; background: var(--line-soft); padding: 3px; border-radius: var(--r); border: 1px solid var(--line); }
+.month-pill {
+  padding: 7px 11px; font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  border-radius: 5px; color: var(--ink-muted); transition: all 0.12s ease; text-transform: uppercase;
+}
+.month-pill:hover { color: var(--navy); background: rgba(255,255,255,0.6); }
+.month-pill.active { background: var(--navy); color: white; box-shadow: var(--shadow-sm); }
+
+.view-toggle { display: flex; gap: 1px; background: var(--line-soft); padding: 3px; border-radius: var(--r); border: 1px solid var(--line); }
+.view-btn {
+  padding: 7px 12px; font-size: 11px; font-weight: 700; border-radius: 5px; color: var(--ink-muted);
+  text-transform: uppercase; letter-spacing: 0.04em; transition: all 0.12s ease;
+}
+.view-btn.active { background: var(--gold); color: var(--navy-dark); box-shadow: var(--shadow-sm); }
+
+/* ====== VITALS ====== */
+.operating-vitals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+.vital-tile {
+  display: flex; flex-direction: column; padding: 14px 18px; border-radius: var(--r);
+  border: 1px solid var(--line); background: var(--bg-paper); border-left: 4px solid var(--ink-faint); position: relative;
+}
+.vital-tile.vital-good { border-left-color: var(--ok); background: linear-gradient(to right, var(--ok-bg-soft), var(--bg-paper) 45%); }
+.vital-tile.vital-warn { border-left-color: var(--warn); background: linear-gradient(to right, var(--warn-bg-soft), var(--bg-paper) 45%); }
+.vital-tile.vital-bad  { border-left-color: var(--alert); background: linear-gradient(to right, var(--alert-bg-soft), var(--bg-paper) 45%); }
+.vital-label { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; margin-bottom: 6px; display:flex; align-items:center; }
+.vital-value { font-family: var(--display); font-weight: 600; font-size: 26px; letter-spacing: 0.01em; color: var(--navy); line-height: 1; }
+.vital-tile.vital-bad .vital-value { color: var(--alert); }
+.vital-tile.vital-warn .vital-value { color: var(--gold-dark); }
+.vital-unit { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); margin-left: 4px; font-weight: 600; }
+.vital-tone { margin-top: 6px; font-size: 11px; color: var(--ink-muted); font-style: italic; }
+
+/* ====== SCENARIO PICKER ====== */
+.scenario-picker {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 14px;
+  background: var(--bg-soft); border: 1px solid var(--line); border-radius: var(--r); margin-bottom: 18px;
+}
+.sp-current-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; margin-right: 4px; }
+.sp-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px 6px 8px; border-radius: 16px;
+  border: 1px solid var(--line); background: var(--bg-paper); font-size: 12px; font-weight: 600; color: var(--ink);
+}
+.sp-chip-baseline { background: var(--navy); color: white; border-color: var(--navy); }
+.sp-chip-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.sp-chip-baseline .sp-chip-swatch { background: white !important; }
+.sp-chip-name { white-space: nowrap; }
+.sp-chip-x { margin-left: 4px; color: var(--ink-faint); font-size: 14px; cursor: pointer; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.12s ease; }
+.sp-chip-x:hover { background: var(--alert); color: white; }
+.sp-chip-lock { font-size: 10px; opacity: 0.7; margin-left: 2px; }
+.sp-add-wrap { position: relative; }
+.sp-add-btn { padding: 6px 12px; border-radius: 16px; border: 1.5px dashed var(--line-strong); font-size: 11.5px; font-weight: 600; color: var(--ink-muted); background: transparent; cursor: pointer; transition: all 0.15s ease; }
+.sp-add-btn:hover { border-color: var(--gold); color: var(--gold-dark); border-style: solid; }
+.sp-add-menu { position: absolute; top: calc(100% + 4px); left: 0; background: var(--bg-paper); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow-lg); min-width: 280px; padding: 6px; z-index: 50; display: none; }
+.sp-add-menu.open { display: block; }
+.sp-add-option { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; }
+.sp-add-option:hover { background: var(--bg-soft); }
+.sp-manage-btn { margin-left: auto; padding: 6px 12px; border-radius: 16px; border: 1px solid var(--line); background: transparent; font-size: 11px; font-weight: 600; color: var(--ink-muted); cursor: pointer; transition: all 0.15s ease; }
+.sp-manage-btn:hover { color: var(--navy); border-color: var(--navy); }
+
+/* ====== VERDICT ====== */
+.verdict { padding: 24px 28px; border-radius: var(--r-lg); border: 2px solid; display: flex; align-items: center; gap: 24px; position: relative; overflow: hidden; }
+.verdict-sell { background: var(--ok-bg-soft); border-color: var(--ok); }
+.verdict-hold { background: var(--warn-bg-soft); border-color: var(--warn); }
+.verdict-hire { background: var(--alert-bg-soft); border-color: var(--alert); }
+.verdict-icon { font-family: var(--display); font-size: 44px; font-weight: 700; line-height: 1; flex-shrink: 0; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: white; box-shadow: var(--shadow); }
+.verdict-sell .verdict-icon { color: var(--ok); }
+.verdict-hold .verdict-icon { color: var(--warn); }
+.verdict-hire .verdict-icon { color: var(--alert); }
+.verdict-content { flex: 1; }
+.verdict-eyebrow { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 6px; }
+.verdict-headline { font-family: var(--display); font-weight: 600; font-size: 30px; letter-spacing: 0.01em; color: var(--navy); line-height: 1.05; text-transform: uppercase; }
+.verdict-detail { font-size: 14px; color: var(--ink-soft); margin-top: 8px; max-width: 760px; line-height: 1.5; }
+.verdict-binding { display:inline-block; margin-top:10px; font-family: var(--mono); font-size: 10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:4px 10px; border-radius: 12px; background: rgba(0,0,0,0.06); color: var(--ink-soft); }
+
+/* ====== METRIC GRID ====== */
+.metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 22px; }
+.metric-card { background: var(--bg-paper); border: 1px solid var(--line); border-top: 3px solid var(--navy); border-radius: var(--r); padding: 16px 18px; position: relative; }
+.metric-label { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; margin-bottom: 10px; display:flex; align-items:center; }
+.metric-value { font-family: var(--display); font-weight: 600; font-size: 32px; letter-spacing: 0.01em; color: var(--navy); line-height: 1; }
+.metric-unit { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); margin-left: 4px; font-weight: 600; }
+.metric-sub { margin-top: 8px; font-size: 11px; color: var(--ink-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.metric-rows { display: flex; flex-direction: column; gap: 6px; }
+.metric-row { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: baseline; padding: 4px 0; border-bottom: 1px dashed var(--line-soft); }
+.metric-row:last-child { border-bottom: none; }
+.metric-row-base { border-bottom-style: solid; border-bottom-color: var(--line); padding-bottom: 8px; }
+.metric-row-swatch { width: 10px; height: 10px; border-radius: 2px; margin-top: 4px; }
+.metric-row-name { font-size: 11.5px; color: var(--ink-soft); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.metric-row-base .metric-row-name { font-weight: 700; color: var(--ink); }
+.metric-row-value { font-family: var(--display); font-weight: 600; font-size: 18px; color: var(--navy); line-height: 1; white-space: nowrap; }
+.metric-row-base .metric-row-value { font-size: 22px; }
+
+/* ====== DECISION DETAIL ====== */
+.decision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
+.decision-card { border: 1px solid var(--line); border-radius: var(--r); padding: 18px 20px; background: var(--bg-paper); }
+.decision-card-title { font-family: var(--display); font-weight: 600; font-size: 17px; margin-bottom: 12px; color: var(--navy); display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+.decision-card-title::before { content: ''; width: 4px; height: 18px; background: var(--gold); border-radius: 2px; }
+.decision-row { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; border-bottom: 1px dashed var(--line-soft); font-size: 13px; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row-label { color: var(--ink-muted); }
+.decision-row-value { font-family: var(--mono); font-weight: 700; color: var(--navy); }
+.decision-row-value.big { font-family: var(--display); font-size: 20px; font-weight: 600; }
+
+/* ====== CHART ====== */
+.chart-container { margin-top: 22px; padding: 22px; background: var(--bg-paper); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.chart-title { font-family: var(--display); font-weight: 600; font-size: 18px; color: var(--navy); text-transform: uppercase; letter-spacing: 0.04em; }
+.chart-legend { display: flex; gap: 14px; font-size: 11px; color: var(--ink-muted); font-family: var(--mono); flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-swatch { width: 12px; height: 12px; border-radius: 2px; }
+.legend-swatch.dashed { background: repeating-linear-gradient(90deg, var(--gold-dark) 0 4px, transparent 4px 7px); }
+.legend-swatch.band { background: rgba(179,64,46,0.18); border: 1px dashed var(--alert); }
+svg.chart { width: 100%; height: 320px; }
+
+.action-row { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin-top: 16px; }
+.action-cell { padding: 9px 4px; text-align: center; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.04em; border-radius: 3px; }
+.action-sell { background: var(--ok-bg); color: var(--ok); }
+.action-hold { background: var(--warn-bg); color: var(--warn); }
+.action-hire { background: var(--alert-bg); color: var(--alert); }
+.action-month { text-align: center; font-family: var(--mono); font-size: 9px; color: var(--ink-muted); margin-bottom: 4px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 700; }
+
+/* ====== FIN TABLE ====== */
+.fin-table-wrap { border: 1px solid var(--line); border-radius: var(--r); overflow: auto; }
+.fin-table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--bg-paper); }
+.fin-table thead th { background: var(--navy-dark); color: white; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 12px 10px; text-align: right; white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.1); }
+.fin-table thead th:first-child { text-align: left; position: sticky; left: 0; background: var(--navy-dark); z-index: 2; min-width: 210px; }
+.fin-table tbody td { padding: 10px; border-bottom: 1px solid var(--line-soft); text-align: right; font-family: var(--mono); font-size: 12.5px; white-space: nowrap; }
+.fin-table tbody td:first-child { text-align: left; font-family: var(--body); font-weight: 500; color: var(--ink-soft); position: sticky; left: 0; background: inherit; z-index: 1; border-right: 2px solid var(--line); }
+.fin-table tbody tr.zebra { background: var(--bg-soft); }
+.fin-table tbody tr.zebra td:first-child { background: var(--bg-soft); }
+.fin-table tbody tr:not(.zebra) td:first-child { background: var(--bg-paper); }
+.fin-table tbody tr:hover { background: rgba(200,150,30,0.06); }
+.fin-table tr.section-row td { background: var(--navy) !important; color: white !important; font-family: var(--display) !important; font-weight: 600 !important; font-size: 12px !important; text-transform: uppercase !important; letter-spacing: 0.08em !important; padding: 8px 12px !important; text-align: left !important; }
+.fin-table td.neg-val { color: var(--alert); font-weight: 600; }
+.fin-table td.pos-val { color: var(--ok); font-weight: 600; }
+.fin-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; vertical-align: middle; }
+
+/* ====== DATA TABLES ====== */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table thead th { text-align: left; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: white; padding: 11px 10px; background: var(--navy); white-space: nowrap; }
+.data-table tbody td { padding: 7px 10px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }
+.data-table tbody tr:hover { background: rgba(200,150,30,0.05); }
+.data-table tfoot td { padding: 12px 10px; border-top: 2px solid var(--navy); font-family: var(--mono); font-weight: 700; font-size: 12px; background: var(--navy-dark); color: white; }
+.cell-num { text-align: right; font-family: var(--mono); }
+input.cell-input, select.cell-input {
+  width: 100%; padding: 5px 8px; border: 1px solid transparent; background: transparent; border-radius: 4px;
+  font-size: 13px; transition: all 0.12s ease;
+}
+input.cell-input:hover, select.cell-input:hover { background: var(--bg-soft); border-color: var(--line-soft); }
+input.cell-input:focus, select.cell-input:focus { outline: none; background: white; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,150,30,0.15); }
+input.cell-num-input { text-align: right; font-family: var(--mono); }
+
+.tag {
+  display: inline-block; padding: 2px 8px; border-radius: 10px; font-family: var(--mono);
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: white;
+  margin-right: 4px; margin-bottom: 2px; white-space: nowrap;
+}
+.stage-pill { display:inline-block; padding:2px 8px; border-radius: 10px; font-size: 11px; font-weight:600; }
+.stage-firm { background: var(--ok-bg); color: var(--ok); }
+.stage-irs { background: var(--warn-bg); color: var(--warn-dark, var(--gold-dark)); }
+.age-badge { font-family: var(--mono); font-weight:700; font-size:11px; padding:2px 7px; border-radius: 10px; }
+.age-fresh { background: var(--ok-bg); color: var(--ok); }
+.age-mid { background: var(--warn-bg); color: var(--gold-dark); }
+.age-stuck { background: var(--alert-bg); color: var(--alert); }
+
+/* ====== FORMS ====== */
+.form-section { border: 1px solid var(--line); border-radius: var(--r); padding: 22px 24px; margin-bottom: 18px; background: var(--bg-paper); }
+.form-section-title { font-family: var(--display); font-weight: 600; font-size: 18px; color: var(--navy); margin-bottom: 4px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+.form-section-title::before { content: ''; width: 4px; height: 20px; background: var(--gold); border-radius: 2px; }
+.form-section-desc { font-size: 12.5px; color: var(--ink-muted); margin-bottom: 18px; line-height: 1.55; }
+.form-field-row { display: grid; grid-template-columns: 1fr 200px; gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--line-soft); }
+.form-field-row:last-child { border-bottom: none; }
+.form-label { font-size: 13px; font-weight: 500; color: var(--ink-soft); display: flex; align-items: center; }
+.form-input { padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: white; font-family: var(--mono); font-size: 13px; text-align: right; transition: all 0.12s ease; font-weight: 600; }
+.form-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,150,30,0.15); }
+.form-input.input-text { text-align: left; font-family: var(--body); font-weight: 400; }
+
+/* ====== CASE TYPE / STAGE EDITOR ====== */
+.ct-card { border: 1px solid var(--line); border-left-width: 5px; border-radius: var(--r); background: var(--bg-soft); padding: 16px 18px; margin-bottom: 14px; }
+.ct-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.ct-name-wrap { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 220px; }
+.ct-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+.ct-name-input { font-family: var(--display); font-weight: 600; font-size: 17px; letter-spacing: 0.02em; color: var(--navy); background: transparent; border: 1px solid transparent; padding: 4px 8px; border-radius: 4px; flex: 1; text-transform: uppercase; }
+.ct-name-input:hover { border-color: var(--line); background: white; }
+.ct-name-input:focus { outline: none; border-color: var(--gold); background: white; box-shadow: 0 0 0 3px rgba(200,150,30,0.15); }
+.ct-billing { display:flex; gap: 10px; align-items:center; flex-wrap: wrap; padding: 10px 12px; background: var(--bg-paper); border: 1px solid var(--line); border-radius: var(--r-sm); margin-bottom: 12px; font-size: 12px; }
+.ct-billing label { font-weight: 600; color: var(--ink-soft); }
+.ct-billing input, .ct-billing select { padding: 5px 8px; border: 1px solid var(--line); border-radius: 4px; background: white; font-family: var(--mono); font-size: 12px; font-weight:600; }
+.stage-table { width: 100%; border-collapse: collapse; font-size: 12px; background: var(--bg-paper); border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; }
+.stage-table th { background: var(--bg-soft); padding: 7px 8px; text-align: left; font-family: var(--mono); font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); border-bottom: 1px solid var(--line); white-space: nowrap; }
+.stage-table td { padding: 4px 6px; border-bottom: 1px solid var(--line-soft); }
+.stage-table input, .stage-table select { width: 100%; padding: 4px 6px; border: 1px solid transparent; background: transparent; border-radius: 4px; font-size: 12px; font-family: var(--mono); }
+.stage-table input.txt { font-family: var(--body); text-align:left; }
+.stage-table input:hover, .stage-table select:hover { background: var(--bg-soft); border-color: var(--line-soft); }
+.stage-table input:focus, .stage-table select:focus { outline: none; background: white; border-color: var(--gold); }
+.stage-table input.num { text-align: center; }
+
+.add-row { margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1.5px dashed var(--line-strong); border-radius: var(--r-sm); font-size: 12px; color: var(--ink-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; transition: all 0.15s ease; }
+.add-row:hover { border-color: var(--gold); border-style: solid; color: var(--gold-dark); background: rgba(200,150,30,0.04); }
+.btn-delete { padding: 4px 6px; color: var(--ink-faint); font-size: 16px; border-radius: 3px; line-height: 1; }
+.btn-delete:hover { color: var(--alert); background: var(--alert-bg); }
+
+/* ====== SCENARIO CARDS ====== */
+.sc-card { border: 1px solid var(--line); border-left-width: 4px; border-radius: var(--r); background: var(--bg-soft); padding: 16px 18px; margin-bottom: 12px; }
+.sc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 10px; }
+.sc-name-input { font-family: var(--display); font-weight: 600; font-size: 17px; letter-spacing: 0.02em; color: var(--navy); background: transparent; border: 1px solid transparent; padding: 4px 8px; border-radius: 4px; flex: 1; text-transform: uppercase; }
+.sc-name-input:hover { border-color: var(--line); background: white; }
+.sc-name-input:focus { outline: none; border-color: var(--gold); background: white; }
+.sc-levers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 900px) { .sc-levers { grid-template-columns: 1fr; } }
+.sc-lever { background: var(--bg-paper); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 12px 14px; }
+.sc-lever-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; margin-bottom: 10px; display:flex; align-items:center; }
+.sc-slider-row { display:flex; align-items:center; gap: 10px; }
+.sc-slider-row input[type=range] { flex:1; accent-color: var(--gold); }
+.sc-slider-val { font-family: var(--mono); font-weight: 700; font-size: 14px; color: var(--navy); min-width: 54px; text-align:right; }
+.sc-hire-add { display:grid; grid-template-columns: 1fr 70px 90px auto; gap:6px; margin-top: 8px; align-items:center; }
+.sc-hire-add select, .sc-hire-add input { padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; background: white; font-size: 12px; font-family: var(--mono); }
+.sc-hire-item { display:flex; align-items:center; gap:8px; padding:6px 8px; background: var(--bg-soft); border-radius: 4px; font-size: 12px; margin-bottom: 4px; }
+
+/* ====== TOOLTIP ====== */
+.tip { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: var(--line-strong); color: white; font-size: 10px; font-family: var(--mono); font-weight: 700; cursor: help; margin-left: 6px; position: relative; flex-shrink: 0; transition: all 0.12s ease; }
+.tip:hover { background: var(--gold); }
+.tip::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--navy-dark); color: white; padding: 10px 14px; border-radius: var(--r); font-size: 11.5px; font-weight: 400; font-family: var(--body); letter-spacing: 0; white-space: normal; width: 290px; text-align: left; line-height: 1.5; opacity: 0; pointer-events: none; transition: opacity 0.18s ease; z-index: 100; box-shadow: var(--shadow-lg); }
+.tip:hover::after { opacity: 1; }
+
+/* ====== GUIDE ====== */
+.guide-callout { border: 2px solid var(--gold); background: linear-gradient(135deg, rgba(200,150,30,0.08), rgba(200,150,30,0.02)); border-radius: var(--r); padding: 18px 22px; margin-bottom: 22px; display: flex; gap: 16px; align-items: flex-start; }
+.guide-callout-icon { font-family: var(--display); font-size: 30px; font-weight: 700; color: var(--gold-dark); flex-shrink: 0; line-height: 1; }
+.guide-step { border: 1px solid var(--line); border-radius: var(--r); padding: 18px 22px; margin-bottom: 14px; background: var(--bg-paper); }
+.guide-step-title { font-family: var(--display); font-weight: 600; font-size: 16px; margin-bottom: 10px; display: flex; align-items: center; text-transform: uppercase; letter-spacing: 0.03em; color: var(--navy); }
+.guide-num { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: var(--navy); color: white; font-family: var(--display); font-size: 14px; font-weight: 700; margin-right: 12px; flex-shrink:0; }
+.guide-body { margin-left: 42px; font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+.guide-body ul { margin: 8px 0 8px 18px; }
+.guide-body li { margin-bottom: 5px; }
+
+/* ====== UTILITY ====== */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--navy-dark); color: white; padding: 12px 22px; border-radius: var(--r); font-size: 13px; font-weight: 600; box-shadow: var(--shadow-lg); z-index: 200; transition: transform 0.25s ease; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.spec-chips { display:flex; flex-wrap:wrap; gap:4px; }
+.spec-chip-toggle { font-size: 10px; padding: 3px 8px; border-radius: 10px; border: 1px solid var(--line); background: white; cursor:pointer; font-weight:600; color: var(--ink-muted); }
+.spec-chip-toggle.on { background: var(--navy); color: white; border-color: var(--navy); }
+
+@media print {
+  .header-actions, .tabs, .add-row, .btn-delete, .sp-add-wrap, .sp-manage-btn { display: none !important; }
+  .tab-panel { display: block !important; page-break-after: always; }
+  .header { position: static; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="brand">
+    <div class="brand-mark">§</div>
+    <div class="brand-text">
+      <div class="brand-app">Resolution Capacity Atlas</div>
+      <div class="brand-tag">Caseload · Surge · Hours — under IRS uncertainty</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-sm" id="reset-btn">↺ Reset</button>
+    <button class="btn btn-sm" id="export-json-btn">↓ JSON</button>
+    <label class="btn btn-sm" for="import-json-input" style="cursor:pointer;">↑ Import
+      <input type="file" id="import-json-input" accept=".json" style="display:none;">
+    </label>
+    <button class="btn btn-primary btn-sm" id="export-pdf-btn">⎙ Print / PDF</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="dashboard"><span class="tab-num">01</span> Dashboard</button>
+  <button class="tab" data-tab="assumptions"><span class="tab-num">02</span> Assumptions</button>
+  <button class="tab" data-tab="team"><span class="tab-num">03</span> Team &amp; Capacity</button>
+  <button class="tab" data-tab="casetypes"><span class="tab-num">04</span> Case Types &amp; Stages</button>
+  <button class="tab" data-tab="caseload"><span class="tab-num">05</span> Active Caseload</button>
+  <button class="tab" data-tab="pipeline"><span class="tab-num">06</span> Intake Pipeline</button>
+  <button class="tab" data-tab="scenarios"><span class="tab-num">07</span> IRS &amp; Intake Scenarios</button>
+  <button class="tab" data-tab="guide"><span class="tab-num">08</span> Guide</button>
+</nav>
+
+<main class="main">
+
+<!-- ============ DASHBOARD ============ -->
+<section class="tab-panel active" data-panel="dashboard">
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-eyebrow">Operating Decision</div>
+        <div class="panel-title">Resolution Capacity Dashboard</div>
+        <div class="panel-subtitle">Demand is projected probabilistically: each case walks its stage lifecycle with min/expected/max IRS dwell times. The dashboard surfaces the binding constraint each month — active case-load per pro, the P90 deadline-surge band, or billable hours.</div>
+      </div>
+      <div class="dash-controls">
+        <div class="view-toggle" id="view-toggle" title="Choose which constraint lens drives the verdict">
+          <button class="view-btn active" data-view="auto">Auto</button>
+          <button class="view-btn" data-view="caseload">Caseload</button>
+          <button class="view-btn" data-view="surge">Surge</button>
+          <button class="view-btn" data-view="hours">Hours</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div style="margin-bottom:16px;"><div class="month-pills" id="month-pills"></div></div>
+      <div class="scenario-picker" id="scenario-picker"></div>
+      <div class="operating-vitals" id="operating-vitals"></div>
+
+      <div class="verdict" id="verdict">
+        <div class="verdict-icon" id="verdict-icon">●</div>
+        <div class="verdict-content">
+          <div class="verdict-eyebrow" id="verdict-eyebrow">Verdict</div>
+          <div class="verdict-headline" id="verdict-headline">Calculating…</div>
+          <div class="verdict-detail" id="verdict-detail"></div>
+          <span class="verdict-binding" id="verdict-binding"></span>
+        </div>
+      </div>
+
+      <div class="metric-grid" id="metric-grid"></div>
+
+      <div class="decision-grid">
+        <div class="decision-card">
+          <div class="decision-card-title">Headroom this month</div>
+          <div class="decision-row"><span class="decision-row-label">New cases you can safely take</span><span class="decision-row-value big" id="d-cases-room">—</span></div>
+          <div class="decision-row"><span class="decision-row-label">Billable hours available</span><span class="decision-row-value big" id="d-hrs-room">—</span></div>
+          <div class="decision-row"><span class="decision-row-label">Expected revenue from open work</span><span class="decision-row-value big" id="d-rev">—</span></div>
+        </div>
+        <div class="decision-card">
+          <div class="decision-card-title">Surge / overflow risk</div>
+          <div class="decision-row"><span class="decision-row-label">P90 hours vs. capacity</span><span class="decision-row-value big" id="d-surge">—</span></div>
+          <div class="decision-row"><span class="decision-row-label">FTE gap if surge lands</span><span class="decision-row-value big" id="d-fte-gap">—</span></div>
+          <div class="decision-row"><span class="decision-row-label">Cases "stuck" at IRS (&gt;threshold)</span><span class="decision-row-value big" id="d-stuck">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-eyebrow">12-Month Outlook</div>
+        <div class="panel-title">Demand vs. Capacity</div>
+        <div class="panel-subtitle">Expected billable-hour demand with a shaded P90 surge band (the bad-luck scenario where IRS responses cluster). When the band crosses the capacity line, those months carry overflow risk even if the average looks fine.</div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="chart-container" style="margin-top:0;">
+        <div class="chart-header">
+          <div class="chart-title">Hours: Expected, P90 Surge &amp; Capacity</div>
+          <div class="chart-legend">
+            <div class="legend-item"><span class="legend-swatch" style="background:var(--navy)"></span> Expected demand</div>
+            <div class="legend-item"><span class="legend-swatch band"></span> P90 surge band</div>
+            <div class="legend-item"><span class="legend-swatch dashed"></span> Billable capacity</div>
+          </div>
+        </div>
+        <svg class="chart" id="hours-chart" viewBox="0 0 1200 320" preserveAspectRatio="none"></svg>
+        <div class="action-row" id="action-row"></div>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <div class="chart-title">Active Case-Load vs. Pro Capacity</div>
+          <div class="chart-legend">
+            <div class="legend-item"><span class="legend-swatch" style="background:var(--gold)"></span> Expected active cases</div>
+            <div class="legend-item"><span class="legend-swatch dashed"></span> Caseload ceiling</div>
+          </div>
+        </div>
+        <svg class="chart" id="caseload-chart" viewBox="0 0 1200 320" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-eyebrow">Cash &amp; Margin</div>
+        <div class="panel-title">Financial Outlook</div>
+        <div class="panel-subtitle">Fees are collected on engagement (flat) or monthly (retainer) — decoupled from IRS timelines. Cost accrues as the case is serviced, so flat-fee margin erodes the longer the IRS takes. Watch the realization row.</div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="fin-table-wrap"><table class="fin-table" id="financial-table"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ASSUMPTIONS ============ -->
+<section class="tab-panel" data-panel="assumptions">
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-eyebrow">Inputs</div><div class="panel-title">Firm Assumptions</div><div class="panel-subtitle">The dials that convert your team and caseload into capacity, cost, and decision thresholds.</div></div></div>
+    <div class="panel-body">
+      <div class="form-section">
+        <div class="form-section-title">Capacity &amp; cost</div>
+        <div class="form-section-desc">How a pro's month converts into billable hours and cost.</div>
+        <div class="form-field-row"><div class="form-label">Productive hours / FTE / month<span class="tip" data-tip="Billable hours one full-time pro can deliver in a month after admin, training, and non-billable time. Typical 130–150."></span></div><input class="form-input" type="number" data-assume="productiveHrs"></div>
+        <div class="form-field-row"><div class="form-label">Loaded cost / hour ($)<span class="tip" data-tip="Fully-loaded internal cost per billable hour (salary + benefits + overhead allocation). Used for margin and idle-cost math."></span></div><input class="form-input" type="number" data-assume="loadedCost"></div>
+        <div class="form-field-row"><div class="form-label">Max active cases / FTE<span class="tip" data-tip="How many open cases one full-time pro can actively carry at once. In tax resolution most cases are waiting on the IRS, so this is often the real ceiling — typical 40–60."></span></div><input class="form-input" type="number" data-assume="maxCasesPerFTE"></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Decision thresholds</div>
+        <div class="form-section-desc">Where the verdict flips between taking more cases, holding, and adding capacity. Each is evaluated against whichever constraint is binding.</div>
+        <div class="form-field-row"><div class="form-label">Lower bound % — below this, SELL / take more cases<span class="tip" data-tip="If utilization (across the binding constraint) falls under this, you have slack. The model says take on more cases. Default 65%."></span></div><input class="form-input" type="number" data-assume="targetUtilLower"></div>
+        <div class="form-field-row"><div class="form-label">Upper bound % — above this, ADD CAPACITY / pause intake<span class="tip" data-tip="Above this, you risk missed IRS deadlines and burnout. The model says hire or slow intake. Default 88%."></span></div><input class="form-input" type="number" data-assume="targetUtilUpper"></div>
+        <div class="form-field-row"><div class="form-label">Surge confidence level (P-band)<span class="tip" data-tip="The percentile used for the surge band. P90 means 'a bad-luck month we'd expect to be under 9 times out of 10.' Higher = more conservative."></span></div><input class="form-input" type="number" data-assume="surgeConfidence"></div>
+        <div class="form-field-row"><div class="form-label">"Stuck at IRS" threshold (months)<span class="tip" data-tip="A case waiting in an IRS-controlled stage longer than this is flagged as stuck — it ties up a caseload slot and client-comms overhead while producing no resolution."></span></div><input class="form-input" type="number" data-assume="stuckMonths"></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Cash</div>
+        <div class="form-field-row"><div class="form-label">Opening cash ($)<span class="tip" data-tip="Starting cash balance for the 12-month cash projection."></span></div><input class="form-input" type="number" data-assume="openingCash"></div>
+        <div class="form-field-row"><div class="form-label">Fixed monthly overhead ($)<span class="tip" data-tip="Rent, software, admin salaries, marketing — costs that exist regardless of caseload. Subtracted from cash each month."></span></div><input class="form-input" type="number" data-assume="fixedOverhead"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEAM ============ -->
+<section class="tab-panel" data-panel="team">
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-eyebrow">Capacity</div><div class="panel-title">Team &amp; Capacity</div><div class="panel-subtitle">Your billable professionals. Specializations control which case types each person can carry. PTO reduces available hours. Case-load capacity = FTE × max cases/FTE, scaled by the case-load factor.</div></div></div>
+    <div class="panel-body">
+      <table class="data-table" id="team-table">
+        <thead><tr>
+          <th>Name</th><th>Role</th><th class="cell-num">FTE</th><th class="cell-num">Cost/hr</th><th class="cell-num">Billable %</th>
+          <th>Specializations</th><th class="cell-num">Caseload ×</th><th class="cell-num">PTO hrs/yr</th><th></th>
+        </tr></thead>
+        <tbody id="team-tbody"></tbody>
+        <tfoot><tr id="team-totals"></tr></tfoot>
+      </table>
+      <button class="add-row" id="add-team">+ Add team member</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CASE TYPES ============ -->
+<section class="tab-panel" data-panel="casetypes">
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-eyebrow">The Engine</div><div class="panel-title">Case Types &amp; Stages</div><div class="panel-subtitle">This is what replaces the fixed project schedule. Each service line is a lifecycle of stages. For every stage set the firm hours, who's working (you vs. the IRS), and the min / expected / max months it dwells. IRS stages carry the uncertainty; the stage right after an IRS stage drives deadline-surge risk.</div></div></div>
+    <div class="panel-body">
+      <div id="ct-cards"></div>
+      <button class="add-row" id="add-ct">+ Add case type</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CASELOAD ============ -->
+<section class="tab-panel" data-panel="caseload">
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-eyebrow">Current Book</div><div class="panel-title">Active Caseload</div><div class="panel-subtitle">Every open engagement, where it sits in its lifecycle right now, and how long it's been in the current stage. The engine projects each case forward through its remaining stages to build expected demand and surge risk.</div></div></div>
+    <div class="panel-body">
+      <table class="data-table" id="caseload-table">
+        <thead><tr>
+          <th>Client / Case</th><th>Case type</th><th>Current stage</th><th class="cell-num">Months in stage</th><th>Assigned to</th><th>Age</th><th></th>
+        </tr></thead>
+        <tbody id="caseload-tbody"></tbody>
+      </table>
+      <button class="add-row" id="add-case">+ Add active case</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PIPELINE ============ -->
+<section class="tab-panel" data-panel="pipeline">
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-eyebrow">Future Intake</div><div class="panel-title">Intake Pipeline</div><div class="panel-subtitle">Expected new engagements — from consultations or marketing. Each row spawns its case type's lifecycle starting in the entry month, weighted by close probability × count. This is how prospective work flows into future capacity.</div></div></div>
+    <div class="panel-body">
+      <table class="data-table" id="pipeline-table">
+        <thead><tr>
+          <th>Source / Label</th><th>Case type</th><th class="cell-num">Entry month</th><th class="cell-num"># cases</th><th class="cell-num">Close %</th><th class="cell-num">Wtd cases</th><th></th>
+        </tr></thead>
+        <tbody id="pipeline-tbody"></tbody>
+        <tfoot><tr id="pipeline-totals"></tr></tfoot>
+      </table>
+      <button class="add-row" id="add-pipeline">+ Add intake row</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCENARIOS ============ -->
+<section class="tab-panel" data-panel="scenarios">
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-eyebrow">What-If</div><div class="panel-title">IRS &amp; Intake Scenarios</div><div class="panel-subtitle">The levers you don't control, made explicit. Stretch IRS processing times, scale intake volume, or add capacity — then overlay scenarios on the dashboard to compare against baseline.</div></div></div>
+    <div class="panel-body">
+      <div id="scenario-cards"></div>
+      <button class="add-row" id="add-scenario">+ Add scenario</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GUIDE ============ -->
+<section class="tab-panel" data-panel="guide">
+  <div class="panel">
+    <div class="panel-head"><div><div class="panel-eyebrow">How it works</div><div class="panel-title">Reading the Atlas</div></div></div>
+    <div class="panel-body">
+      <div class="guide-callout">
+        <div class="guide-callout-icon">!</div>
+        <div>
+          <div style="font-family:var(--display);font-weight:600;font-size:16px;color:var(--navy);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">Why this isn't a project Gantt</div>
+          <div style="font-size:13px;color:var(--ink-soft);line-height:1.55;">In project work you control the schedule. In tax resolution the IRS does. So instead of fixed start dates and durations, every case walks a <strong>stage lifecycle</strong> with uncertain dwell times. Demand becomes a <strong>probability distribution</strong>, and the real risk isn't average overload — it's <strong>deadline clustering</strong> when several IRS responses land at once.</div>
+        </div>
+      </div>
+      <div class="guide-step"><div class="guide-step-title"><span class="guide-num">1</span> Define your service lines</div><div class="guide-body">On <strong>Case Types &amp; Stages</strong>, build each service line (OIC, Installment Agreement, Penalty Abatement, Audit Representation, Unfiled Returns/CNC…). For each stage set firm hours, actor (you vs. IRS), and <strong>min / expected / max</strong> months. The min/max spread on IRS stages is what powers the surge band — wider spread = more uncertainty.</div></div>
+      <div class="guide-step"><div class="guide-step-title"><span class="guide-num">2</span> Set billing per case type</div><div class="guide-body">Each case type bills as a <strong>flat fee</strong> (collected over N months from engagement) or a <strong>monthly retainer</strong> (charged every month the case is open). Flat-fee revenue is fixed at engagement, so the longer the IRS takes, the more your effective realization erodes — the Financial Outlook tracks this.</div></div>
+      <div class="guide-step"><div class="guide-step-title"><span class="guide-num">3</span> Load your team and caseload</div><div class="guide-body">On <strong>Team</strong>, set FTE, billable %, specializations, and how many cases each pro can carry. On <strong>Active Caseload</strong>, record each open case's current stage and how long it's been there. Add expected new work on <strong>Intake Pipeline</strong>.</div></div>
+      <div class="guide-step"><div class="guide-step-title"><span class="guide-num">4</span> Read the verdict</div><div class="guide-body">The dashboard computes three utilizations every month — <strong>case-load</strong> (cases vs. pro capacity), <strong>surge</strong> (P90 hours vs. capacity), and <strong>hours</strong> (expected hours vs. capacity) — and the verdict reflects whichever is binding. Use the <strong>Auto / Caseload / Surge / Hours</strong> toggle to inspect each lens.
+        <ul>
+          <li><strong style="color:var(--ok)">TAKE MORE CASES</strong> — all constraints below the lower bound; you have slack to sell.</li>
+          <li><strong style="color:var(--warn)">HOLD</strong> — comfortably loaded.</li>
+          <li><strong style="color:var(--alert)">ADD CAPACITY / SLOW INTAKE</strong> — a constraint is above the upper bound.</li>
+        </ul>
+      </div></div>
+      <div class="guide-step"><div class="guide-step-title"><span class="guide-num">5</span> Stress-test the IRS</div><div class="guide-body">On <strong>Scenarios</strong>, model "IRS processing slows 30%," "intake doubles after tax season," or "add an EA in March," then overlay them on the dashboard. This is how you plan around the timeline you don't control.</div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const STORAGE_KEY = 'tax_resolution_capacity_atlas_v1';
+const SCENARIO_COLORS = ['#c8961e','#7a4ea8','#2f7d5b','#2d6fb3','#b3402e','#0d8a8a'];
+
+const DEFAULT_DATA = {
+  selectedMonth: 0,
+  view: 'auto',
+  compareScenarios: ['baseline'],
+  assumptions: {
+    productiveHrs: 140,
+    loadedCost: 55,
+    maxCasesPerFTE: 28,
+    targetUtilLower: 65,
+    targetUtilUpper: 88,
+    surgeConfidence: 90,
+    stuckMonths: 9,
+    openingCash: 150000,
+    fixedOverhead: 38000
+  },
+  caseTypes: [
+    { id: 1, name: 'Offer in Compromise', spec: 'OIC', color: '#7a4ea8',
+      billing: { model: 'flat', fee: 6500, collectMonths: 3 },
+      stages: [
+        { name: 'Intake & Compliance Check', hrs: 8,  actor: 'firm', min: 0.5, exp: 1,   max: 2 },
+        { name: 'Financial Analysis (433-A)', hrs: 12, actor: 'firm', min: 1,   exp: 1.5, max: 3 },
+        { name: 'Prepare & Submit OIC',       hrs: 7,  actor: 'firm', min: 0.5, exp: 1,   max: 1 },
+        { name: 'IRS Review',                  hrs: 1,  actor: 'irs',  min: 4,   exp: 9,   max: 24 },
+        { name: 'Negotiation / Counter',       hrs: 8,  actor: 'firm', min: 0.5, exp: 2,   max: 5 },
+        { name: 'Resolution & Close',          hrs: 3,  actor: 'firm', min: 0.5, exp: 1,   max: 2 }
+      ]
+    },
+    { id: 2, name: 'Installment Agreement', spec: 'IA', color: '#2d6fb3',
+      billing: { model: 'flat', fee: 2750, collectMonths: 2 },
+      stages: [
+        { name: 'Intake & Compliance Check', hrs: 5, actor: 'firm', min: 0.5, exp: 1,   max: 2 },
+        { name: 'Financial Package',          hrs: 7, actor: 'firm', min: 0.5, exp: 1,   max: 2 },
+        { name: 'Submit & IRS Processing',    hrs: 1, actor: 'irs',  min: 1,   exp: 3,   max: 8 },
+        { name: 'Confirm & Set Up',           hrs: 3, actor: 'firm', min: 0.5, exp: 1,   max: 1 }
+      ]
+    },
+    { id: 3, name: 'Penalty Abatement', spec: 'PenAbate', color: '#2f7d5b',
+      billing: { model: 'flat', fee: 1500, collectMonths: 1 },
+      stages: [
+        { name: 'Intake & Reasonable Cause', hrs: 4, actor: 'firm', min: 0.5, exp: 1, max: 1 },
+        { name: 'Prepare & Submit Request',  hrs: 4, actor: 'firm', min: 0.5, exp: 1, max: 1 },
+        { name: 'IRS Review',                 hrs: 1, actor: 'irs',  min: 2,   exp: 4, max: 10 },
+        { name: 'Outcome & Close',            hrs: 2, actor: 'firm', min: 0.5, exp: 0.5, max: 1 }
+      ]
+    },
+    { id: 4, name: 'Audit Representation', spec: 'Audit', color: '#b3402e',
+      billing: { model: 'retainer', monthly: 1200 },
+      stages: [
+        { name: 'Intake & Records Review',   hrs: 10, actor: 'firm', min: 0.5, exp: 1,  max: 2 },
+        { name: 'Respond to IDR',            hrs: 14, actor: 'firm', min: 0.5, exp: 1.5,max: 3 },
+        { name: 'Wait for Examiner',         hrs: 2,  actor: 'irs',  min: 1,   exp: 3,  max: 9 },
+        { name: 'Exam Meetings & Negotiation',hrs: 16, actor: 'firm', min: 1,   exp: 3,  max: 6 },
+        { name: 'Appeals (if needed)',        hrs: 12, actor: 'firm', min: 0,   exp: 2,  max: 8 },
+        { name: 'Close',                      hrs: 3,  actor: 'firm', min: 0.5, exp: 1,  max: 1 }
+      ]
+    },
+    { id: 5, name: 'Unfiled Returns / CNC', spec: 'Compliance', color: '#0d8a8a',
+      billing: { model: 'flat', fee: 3200, collectMonths: 2 },
+      stages: [
+        { name: 'Intake & Transcript Pull',  hrs: 6,  actor: 'firm', min: 0.5, exp: 1,  max: 2 },
+        { name: 'Reconstruct & Prepare Returns', hrs: 18, actor: 'firm', min: 1, exp: 2, max: 4 },
+        { name: 'IRS Processing',            hrs: 1,  actor: 'irs',  min: 1,   exp: 3,  max: 8 },
+        { name: 'CNC / Resolution Filing',    hrs: 5,  actor: 'firm', min: 0.5, exp: 1,  max: 2 }
+      ]
+    }
+  ],
+  team: [
+    { id: 1, name: 'Dana Ellis',    role: 'Attorney', fte: 1.0, cost: 85, billable: 70, specs: ['OIC','Audit'], caseloadFactor: 0.8, ptoYr: 120 },
+    { id: 2, name: 'Marcus Webb',   role: 'EA',       fte: 1.0, cost: 55, billable: 80, specs: ['OIC','IA','PenAbate'], caseloadFactor: 1.0, ptoYr: 96 },
+    { id: 3, name: 'Priya Nair',    role: 'EA',       fte: 1.0, cost: 52, billable: 82, specs: ['IA','PenAbate','Compliance'], caseloadFactor: 1.0, ptoYr: 96 },
+    { id: 4, name: 'Sofia Reyes',   role: 'CPA',      fte: 1.0, cost: 60, billable: 78, specs: ['Audit','Compliance'], caseloadFactor: 0.9, ptoYr: 96 },
+    { id: 5, name: 'Jordan Pike',   role: 'Case Mgr', fte: 1.0, cost: 35, billable: 60, specs: ['OIC','IA','PenAbate','Audit','Compliance'], caseloadFactor: 1.3, ptoYr: 80 }
+  ],
+  cases: [
+    { id: 1, client: 'R. Alvarez',   ctId: 1, stageIndex: 3, monthsIn: 5, assignee: 2 },
+    { id: 2, client: 'Beacon LLC',   ctId: 4, stageIndex: 2, monthsIn: 2, assignee: 1 },
+    { id: 3, client: 'T. Okafor',    ctId: 2, stageIndex: 2, monthsIn: 1, assignee: 3 },
+    { id: 4, client: 'M. Schwartz',  ctId: 1, stageIndex: 1, monthsIn: 0, assignee: 2 },
+    { id: 5, client: 'Kestrel Inc',  ctId: 4, stageIndex: 3, monthsIn: 1, assignee: 4 },
+    { id: 6, client: 'D. Nguyen',    ctId: 3, stageIndex: 2, monthsIn: 3, assignee: 3 },
+    { id: 7, client: 'Harbor Foods', ctId: 5, stageIndex: 1, monthsIn: 1, assignee: 4 },
+    { id: 8, client: 'L. Park',      ctId: 2, stageIndex: 0, monthsIn: 0, assignee: 3 },
+    { id: 9, client: 'Vista Group',  ctId: 1, stageIndex: 3, monthsIn: 11, assignee: 2 },
+    { id: 10, client: 'C. Daniels',  ctId: 3, stageIndex: 3, monthsIn: 0, assignee: 5 },
+    { id: 11, client: 'Ironwood Co', ctId: 5, stageIndex: 2, monthsIn: 4, assignee: 4 },
+    { id: 12, client: 'A. Bauer',    ctId: 2, stageIndex: 1, monthsIn: 0, assignee: 3 }
+  ],
+  pipeline: [
+    { id: 1, label: 'Q1 Consults — OIC',      ctId: 1, entryMo: 1, count: 12, close: 50 },
+    { id: 2, label: 'Q1 Consults — IA',       ctId: 2, entryMo: 1, count: 18, close: 65 },
+    { id: 3, label: 'Post-season surge — IA', ctId: 2, entryMo: 4, count: 30, close: 60 },
+    { id: 4, label: 'Audit referrals',        ctId: 4, entryMo: 2, count: 9, close: 70 },
+    { id: 5, label: 'Penalty abatement web',  ctId: 3, entryMo: 2, count: 24, close: 55 },
+    { id: 6, label: 'Unfiled returns season', ctId: 5, entryMo: 3, count: 15, close: 50 }
+  ],
+  scenarios: [
+    { id: 'sc1', name: 'IRS Slows 40%', color: '#7a4ea8', irsDelay: 40, intakeMult: 100, hires: [] },
+    { id: 'sc2', name: 'Add EA in Mar', color: '#2f7d5b', irsDelay: 0, intakeMult: 100, hires: [{ role: 'EA', fte: 1, startMo: 2, specs: ['OIC','IA','PenAbate'] }] }
+  ]
+};
+
+// Deterministically generate a realistic starting caseload (~84 open cases for a 5-pro firm).
+// Kept as a generator so the file stays compact; users overwrite this with their real book.
+function genCases(){
+  const firsts=['R','T','M','D','L','C','A','J','S','P','K','B','E','N','G','V'];
+  const lasts=['Alvarez','Okafor','Schwartz','Nguyen','Park','Daniels','Bauer','Cole','Reyes','Tran','Mensah','Ibarra','Flynn','Sato','Yusuf','Klein','Romano','Bishop','Frost','Adeyemi','Cho','Vance','Ortiz','Salas','Hahn','Pruitt','Beck','Dorsey','Lund','Garza'];
+  const biz=['Beacon LLC','Kestrel Inc','Harbor Foods','Vista Group','Ironwood Co','Summit Trades','Delta Logistics','Crown Builders','Maple Dental','Riverstone Cafe'];
+  // archetypes: [ctId, stageIndex, monthsIn]
+  const arche=[
+    [1,3,5],[4,2,2],[2,2,1],[1,1,0],[4,3,1],[3,2,3],[5,1,1],[2,0,0],
+    [1,3,11],[3,3,0],[5,2,4],[2,1,0]
+  ];
+  // preferred assignees per case type id (matches default team specs)
+  const assignMap={1:[1,2],2:[2,3,5],3:[2,3,5],4:[1,4],5:[3,4]};
+  const cases=[]; let id=1; let bizN=0;
+  for(let k=0;k<7;k++){
+    for(let i=0;i<arche.length;i++){
+      const idx=k*arche.length+i;
+      const [ctId,si,mi]=arche[i];
+      let client;
+      if(idx%6===0){ client=biz[bizN%biz.length]; bizN++; }
+      else client=firsts[idx%firsts.length]+'. '+lasts[idx%lasts.length];
+      const pool=assignMap[ctId]||[5];
+      cases.push({id:id++,client,ctId,stageIndex:si,monthsIn:mi,assignee:pool[idx%pool.length]});
+    }
+  }
+  return cases;
+}
+DEFAULT_DATA.cases = genCases();
+
+let state = loadState();
+let nextId = computeNextId();
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const merged = Object.assign({}, structuredClone(DEFAULT_DATA), parsed);
+      merged.assumptions = Object.assign({}, structuredClone(DEFAULT_DATA.assumptions), parsed.assumptions || {});
+      if (!Array.isArray(merged.caseTypes) || merged.caseTypes.length === 0) merged.caseTypes = structuredClone(DEFAULT_DATA.caseTypes);
+      if (!Array.isArray(merged.team)) merged.team = structuredClone(DEFAULT_DATA.team);
+      if (!Array.isArray(merged.cases)) merged.cases = structuredClone(DEFAULT_DATA.cases);
+      if (!Array.isArray(merged.pipeline)) merged.pipeline = structuredClone(DEFAULT_DATA.pipeline);
+      if (!Array.isArray(merged.scenarios)) merged.scenarios = structuredClone(DEFAULT_DATA.scenarios);
+      if (!Array.isArray(merged.compareScenarios)) merged.compareScenarios = ['baseline'];
+      return merged;
+    }
+  } catch (e) { console.warn('load failed', e); }
+  return structuredClone(DEFAULT_DATA);
+}
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){ console.warn(e); } }
+function computeNextId() {
+  let max = 0;
+  ['caseTypes','team','cases','pipeline'].forEach(k => { if (state[k]) state[k].forEach(r => { if (r.id > max) max = r.id; }); });
+  return max + 1;
+}
+function nextScenarioId() { let n=1; const taken=new Set((state.scenarios||[]).map(s=>s.id)); while(taken.has('sc'+n)) n++; return 'sc'+n; }
+
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+// ===== formatters =====
+function fmtNum(n, d=0){ if(!isFinite(n)) return '—'; return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function fmtCurr(n){ if(!isFinite(n)) return '—'; const neg=n<0; const v=Math.abs(Math.round(n)); return (neg?'-$':'$')+v.toLocaleString('en-US'); }
+function fmtPct(n){ if(!isFinite(n)) return '—'; return (n*100).toFixed(0)+'%'; }
+
+// ===== math: normal CDF via erf =====
+function erf(x){
+  const s = x<0?-1:1; x=Math.abs(x);
+  const t = 1/(1+0.3275911*x);
+  const y = 1 - (((((1.061405429*t -1.453152027)*t)+1.421413741)*t -0.284496736)*t +0.254829592)*t*Math.exp(-x*x);
+  return s*y;
+}
+function normCdf(x, mean, sd){ if(sd<=0) return x>=mean?1:0; return 0.5*(1+erf((x-mean)/(sd*Math.SQRT2))); }
+function zForP(p){ // approx inverse normal for common confidence levels
+  const map={80:0.842,85:1.036,90:1.282,95:1.645,97:1.881,99:2.326};
+  const k=Math.round(p); if(map[k]) return map[k];
+  // fallback rational approx
+  const pp=Math.min(0.999,Math.max(0.5,p/100));
+  const t=Math.sqrt(-2*Math.log(1-pp));
+  return t-(2.515517+0.802853*t+0.010328*t*t)/(1+1.432788*t+0.189269*t*t+0.001308*t*t*t);
+}
+
+function getCaseType(id){ return state.caseTypes.find(c=>c.id===id) || null; }
+function getScenario(id){ if(!id||id==='baseline') return null; return (state.scenarios||[]).find(s=>s.id===id)||null; }
+
+// ===== per-team monthly billable hours (PTO spread evenly) =====
+function teamMonthHours(t, m){
+  const ptoHrs = (t.ptoYr||0)/12;
+  const base = (t.fte||0)*state.assumptions.productiveHrs*((t.billable||0)/100);
+  return Math.max(0, base - ptoHrs*((t.billable||0)/100));
+}
+
+// ===== Project ONE case (template + start offset + IRS multiplier) forward over 12 months =====
+// Returns { firmHrs[12], openProb[12], burstHrs[12], burstVar[12] }
+function projectCase(ct, opts){
+  // opts: { startMo, stageIndex, monthsIn, weight, irsMult }
+  const irsMult = opts.irsMult || 1;
+  const weight = (opts.weight===undefined?1:opts.weight);
+  const stages = ct.stages || [];
+  const startStage = opts.stageIndex || 0;
+  const monthsIn = opts.monthsIn || 0;
+  const startMo = opts.startMo || 0;
+
+  // Build remaining stages with dwell mean/var, current stage reduced by monthsIn
+  // entry[s] = expected month (relative to startMo) when case ENTERS stage s
+  // We only track stages >= startStage.
+  const n = stages.length;
+  const entryMean = new Array(n+1).fill(0); // entryMean[n] = completion of last stage
+  const entryVar  = new Array(n+1).fill(0);
+  let cumMean = 0, cumVar = 0;
+  for (let s=startStage; s<n; s++){
+    entryMean[s] = cumMean; entryVar[s] = cumVar;
+    const st = stages[s];
+    let exp = Math.max(0.05, st.exp||0.5);
+    let mn = Math.max(0, st.min||0), mx = Math.max(exp, st.max||exp);
+    if (st.actor==='irs'){ exp*=irsMult; mn*=irsMult; mx*=irsMult; }
+    let dwell = exp, spread = (mx-mn);
+    if (s===startStage){ dwell = Math.max(0.05, exp - monthsIn); spread = Math.max(0, spread*(dwell/Math.max(0.05,exp))); }
+    cumMean += dwell;
+    cumVar  += Math.pow(spread/5, 2); // triangular-ish std ≈ range/5
+  }
+  entryMean[n] = cumMean; entryVar[n] = cumVar;
+
+  const firmHrs = new Array(12).fill(0);
+  const openProb = new Array(12).fill(0);
+  const burstHrs = new Array(12).fill(0);
+  const burstVar = new Array(12).fill(0);
+
+  for (let m=0; m<12; m++){
+    const rel = m - startMo + 0.5; // mid-month, relative to case start
+    if (m < startMo) continue;
+    // open probability: entered first remaining stage and not yet completed last
+    const pCompleted = normCdf(rel, entryMean[n], Math.sqrt(entryVar[n]));
+    openProb[m] += weight * (1 - pCompleted);
+    // per stage occupancy
+    for (let s=startStage; s<n; s++){
+      const st = stages[s];
+      const pIn = normCdf(rel, entryMean[s], Math.sqrt(entryVar[s])) - normCdf(rel, entryMean[s+1], Math.sqrt(entryVar[s+1]));
+      const occ = Math.max(0, pIn);
+      if (st.actor==='firm' && st.hrs){
+        let exp = Math.max(0.05, st.exp||0.5);
+        const perMonth = (st.hrs||0)/exp;
+        firmHrs[m] += weight * occ * perMonth;
+        // deadline-driven surge: firm stage immediately after an IRS stage can concentrate
+        const prevIrs = s>0 && stages[s-1] && stages[s-1].actor==='irs';
+        if (prevIrs){
+          // treat its hours as possibly all landing this month -> variance contribution
+          const concentrated = weight * occ * (st.hrs||0);
+          burstHrs[m] += concentrated * 0.5; // expected extra concentration
+          burstVar[m] += Math.pow(st.hrs||0,2) * occ*(1-occ) * weight;
+        }
+      }
+    }
+  }
+  return { firmHrs, openProb, burstHrs, burstVar };
+}
+
+// ===== full compute for a scenario =====
+function compute(scenarioId){
+  const a = state.assumptions;
+  const scenario = getScenario(scenarioId);
+  const irsMult = scenario ? (1 + (scenario.irsDelay||0)/100) : 1;
+  const intakeMult = scenario ? (scenario.intakeMult||100)/100 : 1;
+
+  // capacity (hours + caseload) per month, including scenario hires
+  const capHrs = new Array(12).fill(0);
+  const capCases = new Array(12).fill(0);
+  for (let m=0;m<12;m++){
+    let h=0, cc=0;
+    state.team.forEach(t=>{ h += teamMonthHours(t,m); cc += (t.fte||0)*a.maxCasesPerFTE*(t.caseloadFactor||1); });
+    if (scenario && scenario.hires){
+      scenario.hires.forEach(hr=>{
+        if (m >= (hr.startMo||0)){
+          h += (hr.fte||0)*a.productiveHrs*0.78; // assume 78% billable for new hire
+          cc += (hr.fte||0)*a.maxCasesPerFTE;
+        }
+      });
+    }
+    capHrs[m]=h; capCases[m]=cc;
+  }
+
+  const firmHrs = new Array(12).fill(0);
+  const activeCases = new Array(12).fill(0);
+  const burstHrs = new Array(12).fill(0);
+  const burstVar = new Array(12).fill(0);
+  const revByMonth = new Array(12).fill(0);
+  const stuckByMonth = new Array(12).fill(0);
+
+  // active cases
+  state.cases.forEach(c=>{
+    const ct = getCaseType(c.ctId); if(!ct) return;
+    const pr = projectCase(ct, { startMo:0, stageIndex:c.stageIndex||0, monthsIn:c.monthsIn||0, weight:1, irsMult });
+    for(let m=0;m<12;m++){ firmHrs[m]+=pr.firmHrs[m]; activeCases[m]+=pr.openProb[m]; burstHrs[m]+=pr.burstHrs[m]; burstVar[m]+=pr.burstVar[m]; }
+    addRevenue(revByMonth, ct, 0, 1, c, irsMult);
+    // stuck detection: currently in an IRS stage and monthsIn (scaled) beyond threshold
+    const st = ct.stages[c.stageIndex];
+    if (st && st.actor==='irs'){
+      const eff=(c.monthsIn||0); // current dwell already elapsed
+      for(let m=0;m<12;m++){ if (eff+m >= a.stuckMonths) { /* count cases that cross threshold while still open */ } }
+    }
+  });
+
+  // pipeline (weighted new intake)
+  state.pipeline.forEach(p=>{
+    const ct = getCaseType(p.ctId); if(!ct) return;
+    const weight = (p.count||0)*((p.close||0)/100)*intakeMult;
+    if (weight<=0) return;
+    const pr = projectCase(ct, { startMo:p.entryMo||0, stageIndex:0, monthsIn:0, weight, irsMult });
+    for(let m=0;m<12;m++){ firmHrs[m]+=pr.firmHrs[m]; activeCases[m]+=pr.openProb[m]; burstHrs[m]+=pr.burstHrs[m]; burstVar[m]+=pr.burstVar[m]; }
+    addRevenue(revByMonth, ct, p.entryMo||0, weight, null, irsMult);
+  });
+
+  // stuck cases (count active cases sitting in IRS stages past threshold), approx from active cases
+  state.cases.forEach(c=>{
+    const ct=getCaseType(c.ctId); if(!ct) return;
+    const st=ct.stages[c.stageIndex];
+    if (st && st.actor==='irs'){
+      const expDwell = Math.max(0.05,(st.exp||1)*irsMult);
+      for(let m=0;m<12;m++){
+        const totalIn = (c.monthsIn||0)+m;
+        // still in this stage probability
+        const pStill = 1 - normCdf(m+0.5, Math.max(0.05,expDwell-(c.monthsIn||0)), Math.sqrt(Math.pow(((st.max||expDwell)-(st.min||0))*irsMult/5,2)));
+        if (totalIn >= a.stuckMonths) stuckByMonth[m]+=pStill;
+      }
+    }
+  });
+
+  const z = zForP(a.surgeConfidence);
+  const p90Hrs = firmHrs.map((h,m)=> h + burstHrs[m] + z*Math.sqrt(burstVar[m]||0));
+  const hoursUtil = firmHrs.map((h,m)=> capHrs[m]>0 ? h/capHrs[m] : 0);
+  const surgeUtil = p90Hrs.map((h,m)=> capHrs[m]>0 ? h/capHrs[m] : 0);
+  const caseUtil = activeCases.map((c,m)=> capCases[m]>0 ? c/capCases[m] : 0);
+  const directCost = firmHrs.map(h=>h*a.loadedCost);
+
+  // verdict per month based on binding constraint
+  const lower=a.targetUtilLower/100, upper=a.targetUtilUpper/100;
+  const action = new Array(12).fill('HOLD');
+  const binding = new Array(12).fill('hours');
+  for(let m=0;m<12;m++){
+    const trio=[{k:'caseload',v:caseUtil[m]},{k:'surge',v:surgeUtil[m]},{k:'hours',v:hoursUtil[m]}];
+    trio.sort((x,y)=>y.v-x.v);
+    binding[m]=trio[0].k;
+    if (trio[0].v>upper) action[m]='HIRE';
+    else if (Math.max(hoursUtil[m],caseUtil[m],surgeUtil[m])<lower) action[m]='SELL';
+    else action[m]='HOLD';
+  }
+
+  return { capHrs, capCases, firmHrs, activeCases, p90Hrs, burstHrs,
+    hoursUtil, surgeUtil, caseUtil, directCost, revByMonth, stuckByMonth,
+    action, binding, scenarioId: scenarioId||'baseline', scenario };
+}
+
+function addRevenue(rev, ct, startMo, weight, activeCase, irsMult){
+  const b = ct.billing||{};
+  if (b.model==='flat'){
+    const cm = Math.max(1, b.collectMonths||1);
+    const fee = (b.fee||0)*weight;
+    // active cases mid-engagement: assume already collected (skip) unless brand-new (stageIndex 0, monthsIn 0)
+    if (activeCase && !(activeCase.stageIndex===0 && (activeCase.monthsIn||0)===0)) return;
+    for(let k=0;k<cm;k++){ const m=startMo+k; if(m<12) rev[m]+=fee/cm; }
+  } else if (b.model==='retainer'){
+    // monthly fee while open — approximate open months via expected total dwell
+    const monthly=(b.monthly||0)*weight;
+    const stages=ct.stages||[];
+    let startStage = activeCase ? (activeCase.stageIndex||0) : 0;
+    let monthsIn = activeCase ? (activeCase.monthsIn||0) : 0;
+    let cum=0;
+    for(let s=startStage;s<stages.length;s++){ let e=Math.max(0.05,stages[s].exp||0.5); if(stages[s].actor==='irs') e*=irsMult; if(s===startStage) e=Math.max(0.05,e-monthsIn); cum+=e; }
+    const openMonths=Math.min(12, Math.round(cum));
+    for(let k=0;k<openMonths;k++){ const m=startMo+k; if(m<12) rev[m]+=monthly; }
+  }
+}
+
+// compute baseline + selected compare scenarios
+function computeAll(){
+  const ids = (state.compareScenarios||['baseline']).slice(0,3);
+  if(!ids.includes('baseline')) ids.unshift('baseline');
+  return ids.map(id=>compute(id));
+}
+
+// ============================================================================
+// RENDERING
+// ============================================================================
+function colorFor(id){ if(id==='baseline') return '#1b2a4a'; const s=getScenario(id); return s?s.color:'#888'; }
+function nameFor(id){ if(id==='baseline') return 'Baseline'; const s=getScenario(id); return s?s.name:id; }
+
+function renderMonthPills(){
+  const el=document.getElementById('month-pills');
+  el.innerHTML = MONTHS.map((mo,i)=>`<button class="month-pill ${i===state.selectedMonth?'active':''}" data-mo="${i}">${mo}</button>`).join('');
+}
+
+function renderScenarioPicker(){
+  const el=document.getElementById('scenario-picker');
+  let html='<span class="sp-current-label">Comparing</span>';
+  (state.compareScenarios||['baseline']).forEach(id=>{
+    const isBase=id==='baseline';
+    html+=`<span class="sp-chip ${isBase?'sp-chip-baseline':''}"><span class="sp-chip-swatch" style="background:${colorFor(id)}"></span><span class="sp-chip-name">${escapeHtml(nameFor(id))}</span>`;
+    if(isBase) html+=`<span class="sp-chip-lock">🔒</span>`;
+    else html+=`<span class="sp-chip-x" data-remove-cmp="${id}">×</span>`;
+    html+=`</span>`;
+  });
+  const avail=(state.scenarios||[]).filter(s=>!(state.compareScenarios||[]).includes(s.id));
+  if(avail.length && (state.compareScenarios||[]).length<3){
+    html+=`<span class="sp-add-wrap"><button class="sp-add-btn" id="sp-add-trigger">+ Add scenario</button><div class="sp-add-menu" id="sp-add-menu">`;
+    avail.forEach(s=>{ html+=`<div class="sp-add-option" data-add-cmp="${s.id}"><span class="sp-chip-swatch" style="background:${s.color}"></span>${escapeHtml(s.name)}</div>`; });
+    html+=`</div></span>`;
+  }
+  html+=`<button class="sp-manage-btn" id="sp-manage-btn">⚙ Manage scenarios</button>`;
+  el.innerHTML=html;
+}
+
+function renderDashboard(){
+  const calcs=computeAll();
+  const base=calcs[0];
+  const m=state.selectedMonth;
+  const a=state.assumptions;
+
+  // ---- vitals ----
+  const view=state.view||'auto';
+  const bindKey = view==='auto' ? base.binding[m] : view;
+  const utilMap={caseload:base.caseUtil[m], surge:base.surgeUtil[m], hours:base.hoursUtil[m]};
+  const bindUtil=utilMap[bindKey];
+  const cls=(u)=> u>a.targetUtilUpper/100?'vital-bad':(u<a.targetUtilLower/100?'vital-good':'vital-warn');
+  const vitals=[
+    {label:'Caseload utilization', val:fmtPct(base.caseUtil[m]), tone:`${fmtNum(base.activeCases[m],1)} of ${fmtNum(base.capCases[m],0)} case slots`, c:cls(base.caseUtil[m])},
+    {label:'Hours utilization (expected)', val:fmtPct(base.hoursUtil[m]), tone:`${fmtNum(base.firmHrs[m])} of ${fmtNum(base.capHrs[m])} hrs`, c:cls(base.hoursUtil[m])},
+    {label:`Surge utilization (P${a.surgeConfidence})`, val:fmtPct(base.surgeUtil[m]), tone:`bad-luck demand ${fmtNum(base.p90Hrs[m])} hrs`, c:cls(base.surgeUtil[m])},
+    {label:'Expected revenue', val:fmtCurr(base.revByMonth[m]), tone:`direct cost ${fmtCurr(base.directCost[m])}`, c: base.revByMonth[m]-base.directCost[m]>0?'vital-good':'vital-bad'}
+  ];
+  document.getElementById('operating-vitals').innerHTML=vitals.map(v=>`
+    <div class="vital-tile ${v.c}"><div class="vital-label">${v.label}</div><div class="vital-value">${v.val}</div><div class="vital-tone">${v.tone}</div></div>`).join('');
+
+  // ---- verdict ----
+  const act=base.action[m];
+  const vEl=document.getElementById('verdict');
+  vEl.className='verdict '+(act==='SELL'?'verdict-sell':act==='HIRE'?'verdict-hire':'verdict-hold');
+  document.getElementById('verdict-icon').textContent = act==='SELL'?'↑':act==='HIRE'?'!':'=';
+  document.getElementById('verdict-eyebrow').textContent='Verdict for '+MONTHS[m];
+  const bindLabel={caseload:'case-load per pro', surge:'deadline-surge risk', hours:'billable hours'}[base.binding[m]];
+  let head, detail;
+  if(act==='SELL'){ head='Take on more cases'; detail=`All constraints sit below ${a.targetUtilLower}% in ${MONTHS[m]}. You can absorb roughly ${fmtNum(headroomCases(base,m),0)} more new cases before the binding constraint (${bindLabel}) tightens. Push intake / consultations.`; }
+  else if(act==='HIRE'){ head='Add capacity or slow intake'; detail=`${cap(bindLabel)} exceeds your ${a.targetUtilUpper}% ceiling in ${MONTHS[m]} (${fmtPct(bindUtil)}). Either add a pro, redistribute caseload, or pause taking new ${''}cases of the over-loaded type.`; }
+  else { head='Hold — well matched'; detail=`Capacity is comfortably matched to demand in ${MONTHS[m]}. Binding constraint is ${bindLabel} at ${fmtPct(bindUtil)}.`; }
+  document.getElementById('verdict-headline').textContent=head;
+  document.getElementById('verdict-detail').textContent=detail;
+  document.getElementById('verdict-binding').textContent='Binding constraint: '+bindLabel;
+
+  // ---- metric grid (multi-scenario) ----
+  const metrics=[
+    {label:'Active cases', get:c=>fmtNum(c.activeCases[m],1)},
+    {label:'Expected hours', get:c=>fmtNum(c.firmHrs[m])},
+    {label:`P${a.surgeConfidence} surge hours`, get:c=>fmtNum(c.p90Hrs[m])},
+    {label:'Gross margin', get:c=>fmtCurr(c.revByMonth[m]-c.directCost[m])}
+  ];
+  document.getElementById('metric-grid').innerHTML=metrics.map(mt=>{
+    let rows=calcs.map((c,i)=>`<div class="metric-row ${i===0?'metric-row-base':''}"><span class="metric-row-swatch" style="background:${colorFor(c.scenarioId)}"></span><span class="metric-row-name">${escapeHtml(nameFor(c.scenarioId))}</span><span class="metric-row-value">${mt.get(c)}</span></div>`).join('');
+    return `<div class="metric-card"><div class="metric-label">${mt.label}</div><div class="metric-rows">${rows}</div></div>`;
+  }).join('');
+
+  // ---- headroom / surge detail ----
+  document.getElementById('d-cases-room').textContent=fmtNum(headroomCases(base,m),0);
+  const hrsRoom=Math.max(0, base.capHrs[m]*(a.targetUtilUpper/100)-base.firmHrs[m]);
+  document.getElementById('d-hrs-room').textContent=fmtNum(hrsRoom)+' hrs';
+  document.getElementById('d-rev').textContent=fmtCurr(base.revByMonth[m]);
+  document.getElementById('d-surge').textContent=fmtPct(base.surgeUtil[m]);
+  const fteGap=Math.max(0,(base.p90Hrs[m]-base.capHrs[m]*(a.targetUtilUpper/100))/a.productiveHrs);
+  document.getElementById('d-fte-gap').textContent=fmtNum(fteGap,1)+' FTE';
+  document.getElementById('d-stuck').textContent=fmtNum(base.stuckByMonth[m],1);
+
+  renderHoursChart(calcs);
+  renderCaseloadChart(calcs);
+  renderActionRow(base);
+  renderFinancialTable(calcs);
+}
+
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function headroomCases(base, m){
+  const a=state.assumptions;
+  // headroom = min across constraints of (upper*cap - current) translated to # cases
+  const caseRoom=Math.max(0, base.capCases[m]*(a.targetUtilUpper/100)-base.activeCases[m]);
+  return caseRoom;
+}
+
+function renderActionRow(base){
+  const el=document.getElementById('action-row');
+  el.innerHTML=base.action.map((act,i)=>{
+    const cls=act==='SELL'?'action-sell':act==='HIRE'?'action-hire':'action-hold';
+    const lbl=act==='SELL'?'SELL':act==='HIRE'?'ADD':'HOLD';
+    return `<div><div class="action-month">${MONTHS[i]}</div><div class="action-cell ${cls}">${lbl}</div></div>`;
+  }).join('');
+}
+
+// ===== charts =====
+function buildLine(arr, maxV, W, H, pad){
+  const innerW=W-pad*2, innerH=H-pad*2;
+  return arr.map((v,i)=>{ const x=pad+(i/(arr.length-1))*innerW; const y=pad+innerH-(v/maxV)*innerH; return `${x.toFixed(1)},${y.toFixed(1)}`; }).join(' ');
+}
+function renderHoursChart(calcs){
+  const svg=document.getElementById('hours-chart'); const W=1200,H=320,pad=34;
+  const base=calcs[0];
+  let maxV=0; calcs.forEach(c=>{ for(let m=0;m<12;m++){ maxV=Math.max(maxV,c.p90Hrs[m],c.capHrs[m],c.firmHrs[m]); } });
+  maxV=Math.max(10,maxV*1.12);
+  let s='';
+  // gridlines
+  for(let g=0;g<=4;g++){ const y=pad+(H-pad*2)*g/4; const val=maxV*(1-g/4); s+=`<line x1="${pad}" y1="${y}" x2="${W-pad}" y2="${y}" stroke="#e7ebf2" stroke-width="1"/><text x="${pad-6}" y="${y+3}" text-anchor="end" font-family="JetBrains Mono" font-size="10" fill="#97a0b3">${Math.round(val)}</text>`; }
+  // P90 band (baseline) as filled area between firmHrs and p90Hrs
+  const innerW=W-pad*2, innerH=H-pad*2;
+  let bandTop=[], bandBot=[];
+  for(let m=0;m<12;m++){ const x=pad+(m/11)*innerW; bandTop.push(`${x.toFixed(1)},${(pad+innerH-(base.p90Hrs[m]/maxV)*innerH).toFixed(1)}`); }
+  for(let m=11;m>=0;m--){ const x=pad+(m/11)*innerW; bandBot.push(`${x.toFixed(1)},${(pad+innerH-(base.firmHrs[m]/maxV)*innerH).toFixed(1)}`); }
+  s+=`<polygon points="${bandTop.concat(bandBot).join(' ')}" fill="rgba(179,64,46,0.14)" stroke="none"/>`;
+  // capacity dashed (baseline)
+  s+=`<polyline points="${buildLine(base.capHrs,maxV,W,H,pad)}" fill="none" stroke="#9c7415" stroke-width="2.5" stroke-dasharray="7 5"/>`;
+  // demand lines per scenario
+  calcs.forEach(c=>{ s+=`<polyline points="${buildLine(c.firmHrs,maxV,W,H,pad)}" fill="none" stroke="${colorFor(c.scenarioId)}" stroke-width="${c.scenarioId==='baseline'?3:2}" ${c.scenarioId==='baseline'?'':'stroke-dasharray="2 3"'}/>`; });
+  // month labels
+  for(let m=0;m<12;m++){ const x=pad+(m/11)*innerW; s+=`<text x="${x}" y="${H-8}" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#5a6477">${MONTHS[m]}</text>`; }
+  svg.innerHTML=s;
+}
+function renderCaseloadChart(calcs){
+  const svg=document.getElementById('caseload-chart'); const W=1200,H=320,pad=34;
+  const base=calcs[0];
+  let maxV=0; calcs.forEach(c=>{ for(let m=0;m<12;m++){ maxV=Math.max(maxV,c.activeCases[m],c.capCases[m]); } });
+  maxV=Math.max(5,maxV*1.12);
+  let s=''; const innerW=W-pad*2, innerH=H-pad*2;
+  for(let g=0;g<=4;g++){ const y=pad+(H-pad*2)*g/4; const val=maxV*(1-g/4); s+=`<line x1="${pad}" y1="${y}" x2="${W-pad}" y2="${y}" stroke="#e7ebf2" stroke-width="1"/><text x="${pad-6}" y="${y+3}" text-anchor="end" font-family="JetBrains Mono" font-size="10" fill="#97a0b3">${Math.round(val)}</text>`; }
+  s+=`<polyline points="${buildLine(base.capCases,maxV,W,H,pad)}" fill="none" stroke="#9c7415" stroke-width="2.5" stroke-dasharray="7 5"/>`;
+  calcs.forEach(c=>{ s+=`<polyline points="${buildLine(c.activeCases,maxV,W,H,pad)}" fill="none" stroke="${c.scenarioId==='baseline'?'#c8961e':colorFor(c.scenarioId)}" stroke-width="${c.scenarioId==='baseline'?3:2}" ${c.scenarioId==='baseline'?'':'stroke-dasharray="2 3"'}/>`; });
+  for(let m=0;m<12;m++){ const x=pad+(m/11)*innerW; s+=`<text x="${x}" y="${H-8}" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#5a6477">${MONTHS[m]}</text>`; }
+  svg.innerHTML=s;
+}
+
+function renderFinancialTable(calcs){
+  const base=calcs[0]; const a=state.assumptions;
+  let cash=a.openingCash; const cashRow=[];
+  for(let m=0;m<12;m++){ cash += base.revByMonth[m]-base.directCost[m]-(a.fixedOverhead||0); cashRow.push(cash); }
+  const rows=[
+    {section:'DEMAND'},
+    {label:'Active cases (expected)', get:m=>fmtNum(base.activeCases[m],1)},
+    {label:'Billable hours (expected)', get:m=>fmtNum(base.firmHrs[m])},
+    {label:`Surge hours (P${a.surgeConfidence})`, get:m=>fmtNum(base.p90Hrs[m])},
+    {section:'CAPACITY & UTILIZATION'},
+    {label:'Billable capacity (hrs)', get:m=>fmtNum(base.capHrs[m])},
+    {label:'Caseload utilization', get:m=>fmtPct(base.caseUtil[m])},
+    {label:'Hours utilization', get:m=>fmtPct(base.hoursUtil[m])},
+    {section:'CASH & MARGIN'},
+    {label:'Fee revenue (collected)', get:m=>fmtCurr(base.revByMonth[m])},
+    {label:'Direct service cost', get:m=>fmtCurr(-base.directCost[m]), neg:true},
+    {label:'Fixed overhead', get:m=>fmtCurr(-(a.fixedOverhead||0)), neg:true},
+    {label:'Net cash flow', get:m=>fmtCurr(base.revByMonth[m]-base.directCost[m]-(a.fixedOverhead||0)), signed:true},
+    {label:'Cash position', get:m=>fmtCurr(cashRow[m]), signed:true},
+    {label:'Realized $/billable hr', get:m=> base.firmHrs[m]>0?fmtCurr(base.revByMonth[m]/base.firmHrs[m]):'—'}
+  ];
+  let html=`<thead><tr><th>Metric</th>${MONTHS.map(mo=>`<th>${mo}</th>`).join('')}</tr></thead><tbody>`;
+  let z=false;
+  rows.forEach(r=>{
+    if(r.section){ html+=`<tr class="section-row"><td>${r.section}</td>${MONTHS.map(()=>'<td></td>').join('')}</tr>`; z=false; return; }
+    html+=`<tr class="${z?'zebra':''}"><td>${r.label}</td>`;
+    for(let m=0;m<12;m++){ let cls=''; const raw=r.get(m); if(r.signed){ const v=r.label.includes('Cash position')?cashRow[m]:(base.revByMonth[m]-base.directCost[m]-(a.fixedOverhead||0)); cls=v<0?'neg-val':'pos-val'; } else if(r.neg){ cls='neg-val'; } html+=`<td class="${cls}">${raw}</td>`; }
+    html+=`</tr>`; z=!z;
+  });
+  html+=`</tbody>`;
+  document.getElementById('financial-table').innerHTML=html;
+}
+
+// ===== ASSUMPTIONS =====
+function renderAssumptions(){
+  document.querySelectorAll('[data-assume]').forEach(inp=>{ inp.value=state.assumptions[inp.dataset.assume]; });
+}
+
+// ===== TEAM =====
+function allSpecs(){ const s=new Set(); state.caseTypes.forEach(ct=>s.add(ct.spec)); return [...s]; }
+function renderTeam(){
+  const tb=document.getElementById('team-tbody');
+  const specs=allSpecs();
+  tb.innerHTML=state.team.map(t=>`
+    <tr data-id="${t.id}">
+      <td><input class="cell-input" data-tf="name" value="${escapeHtml(t.name)}"></td>
+      <td><select class="cell-input" data-tf="role">${['Attorney','CPA','EA','Case Mgr','Admin'].map(r=>`<option ${t.role===r?'selected':''}>${r}</option>`).join('')}</select></td>
+      <td><input class="cell-input cell-num-input" data-tf="fte" type="number" step="0.1" value="${t.fte}"></td>
+      <td><input class="cell-input cell-num-input" data-tf="cost" type="number" value="${t.cost}"></td>
+      <td><input class="cell-input cell-num-input" data-tf="billable" type="number" value="${t.billable}"></td>
+      <td><div class="spec-chips">${specs.map(sp=>`<span class="spec-chip-toggle ${(t.specs||[]).includes(sp)?'on':''}" data-spec="${sp}">${sp}</span>`).join('')}</div></td>
+      <td><input class="cell-input cell-num-input" data-tf="caseloadFactor" type="number" step="0.1" value="${t.caseloadFactor}"></td>
+      <td><input class="cell-input cell-num-input" data-tf="ptoYr" type="number" value="${t.ptoYr}"></td>
+      <td><button class="btn-delete" data-del-team="${t.id}">×</button></td>
+    </tr>`).join('');
+  const totFte=state.team.reduce((s,t)=>s+(+t.fte||0),0);
+  const totHrs=state.team.reduce((s,t)=>s+teamMonthHours(t,0),0);
+  const totCases=state.team.reduce((s,t)=>s+(+t.fte||0)*state.assumptions.maxCasesPerFTE*(t.caseloadFactor||1),0);
+  document.getElementById('team-totals').innerHTML=`<td>${state.team.length} people · ${fmtNum(totFte,1)} FTE</td><td></td><td class="cell-num">${fmtNum(totFte,1)}</td><td></td><td></td><td>${fmtNum(totHrs)} hrs/mo</td><td class="cell-num">${fmtNum(totCases)} slots</td><td></td><td></td>`;
+}
+
+// ===== CASE TYPES =====
+function renderCaseTypes(){
+  const wrap=document.getElementById('ct-cards');
+  wrap.innerHTML=state.caseTypes.map(ct=>{
+    const b=ct.billing||{};
+    const billing=`
+      <div class="ct-billing">
+        <label>Billing</label>
+        <select data-ctf="billing.model" data-ct="${ct.id}">
+          <option value="flat" ${b.model==='flat'?'selected':''}>Flat fee</option>
+          <option value="retainer" ${b.model==='retainer'?'selected':''}>Monthly retainer</option>
+        </select>
+        ${b.model==='retainer'
+          ? `<label>Monthly $</label><input type="number" data-ctf="billing.monthly" data-ct="${ct.id}" value="${b.monthly||0}" style="width:90px;">`
+          : `<label>Fee $</label><input type="number" data-ctf="billing.fee" data-ct="${ct.id}" value="${b.fee||0}" style="width:90px;"><label>collected over</label><input type="number" data-ctf="billing.collectMonths" data-ct="${ct.id}" value="${b.collectMonths||1}" style="width:50px;"><label>mo</label>`}
+      </div>`;
+    const stageRows=(ct.stages||[]).map((st,i)=>`
+      <tr data-ct="${ct.id}" data-si="${i}">
+        <td><input class="txt" data-sf="name" value="${escapeHtml(st.name)}"></td>
+        <td><select data-sf="actor"><option value="firm" ${st.actor==='firm'?'selected':''}>Firm</option><option value="irs" ${st.actor==='irs'?'selected':''}>IRS / wait</option></select></td>
+        <td><input class="num" data-sf="hrs" type="number" value="${st.hrs}"></td>
+        <td><input class="num" data-sf="min" type="number" step="0.5" value="${st.min}"></td>
+        <td><input class="num" data-sf="exp" type="number" step="0.5" value="${st.exp}"></td>
+        <td><input class="num" data-sf="max" type="number" step="0.5" value="${st.max}"></td>
+        <td><button class="btn-delete" data-del-stage="${ct.id}" data-si="${i}">×</button></td>
+      </tr>`).join('');
+    return `
+    <div class="ct-card" style="border-left-color:${ct.color}">
+      <div class="ct-head">
+        <div class="ct-name-wrap"><span class="ct-swatch" style="background:${ct.color}"></span>
+          <input class="ct-name-input" data-ctf="name" data-ct="${ct.id}" value="${escapeHtml(ct.name)}"></div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="font-size:11px;color:var(--ink-muted);font-weight:600;">Spec</label>
+          <input data-ctf="spec" data-ct="${ct.id}" value="${escapeHtml(ct.spec)}" style="width:110px;padding:5px 8px;border:1px solid var(--line);border-radius:4px;font-family:var(--mono);font-size:12px;font-weight:600;">
+          <input type="color" data-ctf="color" data-ct="${ct.id}" value="${ct.color}" style="width:34px;height:30px;border:none;background:none;cursor:pointer;">
+          <button class="btn-delete" data-del-ct="${ct.id}">×</button>
+        </div>
+      </div>
+      ${billing}
+      <table class="stage-table">
+        <thead><tr><th>Stage</th><th>Actor</th><th>Firm hrs</th><th>Min mo</th><th>Exp mo</th><th>Max mo</th><th></th></tr></thead>
+        <tbody>${stageRows}</tbody>
+      </table>
+      <button class="add-row" data-add-stage="${ct.id}" style="margin-top:8px;">+ Add stage</button>
+    </div>`;
+  }).join('');
+}
+
+// ===== CASELOAD =====
+function renderCaseload(){
+  const tb=document.getElementById('caseload-tbody');
+  tb.innerHTML=state.cases.map(c=>{
+    const ct=getCaseType(c.ctId);
+    const stages=ct?ct.stages:[];
+    const st=stages[c.stageIndex];
+    const age=ageOfCase(c);
+    const ageCls=age>=state.assumptions.stuckMonths?'age-stuck':(age>=4?'age-mid':'age-fresh');
+    const isIrs=st&&st.actor==='irs';
+    return `
+    <tr data-id="${c.id}">
+      <td><input class="cell-input" data-cf="client" value="${escapeHtml(c.client)}"></td>
+      <td><select class="cell-input" data-cf="ctId">${state.caseTypes.map(t=>`<option value="${t.id}" ${t.id===c.ctId?'selected':''}>${escapeHtml(t.name)}</option>`).join('')}</select></td>
+      <td><select class="cell-input" data-cf="stageIndex">${stages.map((s,i)=>`<option value="${i}" ${i===c.stageIndex?'selected':''}>${escapeHtml(s.name)}${s.actor==='irs'?' ⏳':''}</option>`).join('')}</select></td>
+      <td><input class="cell-input cell-num-input" data-cf="monthsIn" type="number" step="0.5" value="${c.monthsIn}"></td>
+      <td><select class="cell-input" data-cf="assignee">${state.team.map(t=>`<option value="${t.id}" ${t.id===c.assignee?'selected':''}>${escapeHtml(t.name)}</option>`).join('')}</select></td>
+      <td><span class="age-badge ${ageCls}">${fmtNum(age,1)} mo${isIrs?' ⏳':''}</span></td>
+      <td><button class="btn-delete" data-del-case="${c.id}">×</button></td>
+    </tr>`;
+  }).join('');
+}
+function ageOfCase(c){ const ct=getCaseType(c.ctId); if(!ct) return c.monthsIn||0; let cum=0; for(let s=0;s<c.stageIndex;s++){ cum+=(ct.stages[s].exp||0); } return cum+(c.monthsIn||0); }
+
+// ===== PIPELINE =====
+function renderPipeline(){
+  const tb=document.getElementById('pipeline-tbody');
+  tb.innerHTML=state.pipeline.map(p=>{
+    const wtd=(p.count||0)*((p.close||0)/100);
+    return `
+    <tr data-id="${p.id}">
+      <td><input class="cell-input" data-pf="label" value="${escapeHtml(p.label)}"></td>
+      <td><select class="cell-input" data-pf="ctId">${state.caseTypes.map(t=>`<option value="${t.id}" ${t.id===p.ctId?'selected':''}>${escapeHtml(t.name)}</option>`).join('')}</select></td>
+      <td><select class="cell-input" data-pf="entryMo">${MONTHS.map((mo,i)=>`<option value="${i}" ${i===p.entryMo?'selected':''}>${mo}</option>`).join('')}</select></td>
+      <td><input class="cell-input cell-num-input" data-pf="count" type="number" value="${p.count}"></td>
+      <td><input class="cell-input cell-num-input" data-pf="close" type="number" value="${p.close}"></td>
+      <td class="cell-num">${fmtNum(wtd,1)}</td>
+      <td><button class="btn-delete" data-del-pipeline="${p.id}">×</button></td>
+    </tr>`;
+  }).join('');
+  const totWtd=state.pipeline.reduce((s,p)=>s+(p.count||0)*((p.close||0)/100),0);
+  document.getElementById('pipeline-totals').innerHTML=`<td>Total weighted intake</td><td></td><td></td><td class="cell-num">${state.pipeline.reduce((s,p)=>s+(+p.count||0),0)}</td><td></td><td class="cell-num">${fmtNum(totWtd,1)}</td><td></td>`;
+}
+
+// ===== SCENARIOS =====
+function renderScenarios(){
+  const wrap=document.getElementById('scenario-cards');
+  wrap.innerHTML=state.scenarios.map(sc=>{
+    const hires=(sc.hires||[]).map((h,i)=>`<div class="sc-hire-item"><span style="flex:1">${h.fte} FTE ${escapeHtml(h.role)} from ${MONTHS[h.startMo||0]}</span><button class="btn-delete" data-del-hire="${sc.id}" data-hi="${i}">×</button></div>`).join('');
+    return `
+    <div class="sc-card" style="border-left-color:${sc.color}">
+      <div class="sc-head">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;"><span class="ct-swatch" style="background:${sc.color}"></span>
+          <input class="sc-name-input" data-scf="name" data-sc="${sc.id}" value="${escapeHtml(sc.name)}"></div>
+        <button class="btn-delete" data-del-sc="${sc.id}">×</button>
+      </div>
+      <div class="sc-levers">
+        <div class="sc-lever">
+          <div class="sc-lever-label">IRS processing delay<span class="tip" data-tip="Stretch every IRS-controlled stage by this %. +40% means a 9-month OIC review becomes ~12.6 months. This is the variable you don't control."></span></div>
+          <div class="sc-slider-row"><input type="range" min="-30" max="150" step="5" data-scf="irsDelay" data-sc="${sc.id}" value="${sc.irsDelay}"><span class="sc-slider-val">${sc.irsDelay>0?'+':''}${sc.irsDelay}%</span></div>
+        </div>
+        <div class="sc-lever">
+          <div class="sc-lever-label">Intake volume<span class="tip" data-tip="Scale all pipeline intake. 150% models a post-tax-season surge in new clients."></span></div>
+          <div class="sc-slider-row"><input type="range" min="0" max="250" step="10" data-scf="intakeMult" data-sc="${sc.id}" value="${sc.intakeMult}"><span class="sc-slider-val">${sc.intakeMult}%</span></div>
+        </div>
+      </div>
+      <div class="sc-lever" style="margin-top:14px;">
+        <div class="sc-lever-label">Added capacity (hires)</div>
+        ${hires||'<div style="font-size:11px;color:var(--ink-faint);margin-bottom:6px;">No hires in this scenario</div>'}
+        <div class="sc-hire-add">
+          <select data-hire-role="${sc.id}">${['EA','CPA','Attorney','Case Mgr'].map(r=>`<option>${r}</option>`).join('')}</select>
+          <input type="number" step="0.5" value="1" data-hire-fte="${sc.id}" placeholder="FTE">
+          <select data-hire-mo="${sc.id}">${MONTHS.map((mo,i)=>`<option value="${i}">${mo}</option>`).join('')}</select>
+          <button class="add-row" data-add-hire="${sc.id}" style="margin:0;">+ Add</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================================
+// EVENTS
+// ============================================================================
+function rerenderActiveTab(){
+  const tab=document.querySelector('.tab.active').dataset.tab;
+  if(tab==='dashboard') renderDashboard();
+  else if(tab==='assumptions') renderAssumptions();
+  else if(tab==='team') renderTeam();
+  else if(tab==='casetypes') renderCaseTypes();
+  else if(tab==='caseload') renderCaseload();
+  else if(tab==='pipeline') renderPipeline();
+  else if(tab==='scenarios') renderScenarios();
+}
+function refreshAll(){ saveState(); renderScenarioPicker(); rerenderActiveTab(); }
+
+// tabs
+document.querySelectorAll('.tab').forEach(tb=>tb.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  tb.classList.add('active');
+  const tab=tb.dataset.tab;
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===tab));
+  rerenderActiveTab();
+}));
+
+// month pills + view toggle (delegated)
+document.getElementById('month-pills').addEventListener('click',e=>{ const b=e.target.closest('[data-mo]'); if(!b) return; state.selectedMonth=+b.dataset.mo; renderMonthPills(); saveState(); renderDashboard(); });
+document.getElementById('view-toggle').addEventListener('click',e=>{ const b=e.target.closest('[data-view]'); if(!b) return; state.view=b.dataset.view; document.querySelectorAll('#view-toggle .view-btn').forEach(x=>x.classList.toggle('active',x===b)); saveState(); renderDashboard(); });
+
+// scenario picker
+document.getElementById('scenario-picker').addEventListener('click',e=>{
+  const add=e.target.closest('[data-add-cmp]'); const rem=e.target.closest('[data-remove-cmp]');
+  if(e.target.id==='sp-add-trigger'){ document.getElementById('sp-add-menu').classList.toggle('open'); return; }
+  if(e.target.id==='sp-manage-btn'){ document.querySelector('.tab[data-tab="scenarios"]').click(); return; }
+  if(add){ if(!state.compareScenarios.includes(add.dataset.addCmp) && state.compareScenarios.length<3) state.compareScenarios.push(add.dataset.addCmp); refreshAll(); renderDashboard(); }
+  if(rem){ state.compareScenarios=state.compareScenarios.filter(x=>x!==rem.dataset.removeCmp); refreshAll(); renderDashboard(); }
+});
+
+// assumptions
+document.querySelector('[data-panel="assumptions"]').addEventListener('input',e=>{
+  const f=e.target.dataset.assume; if(!f) return; state.assumptions[f]=parseFloat(e.target.value)||0; saveState();
+});
+
+// team
+document.getElementById('add-team').addEventListener('click',()=>{ state.team.push({id:nextId++,name:'New Member',role:'EA',fte:1,cost:50,billable:78,specs:[],caseloadFactor:1,ptoYr:96}); refreshAll(); });
+document.getElementById('team-tbody').addEventListener('input',e=>{
+  const tr=e.target.closest('tr'); if(!tr) return; const t=state.team.find(x=>x.id==tr.dataset.id); if(!t) return;
+  const f=e.target.dataset.tf; if(!f) return;
+  t[f]= (['name','role'].includes(f))? e.target.value : (parseFloat(e.target.value)||0);
+  saveState(); if(f==='caseloadFactor'||f==='fte'||f==='billable'||f==='ptoYr'){ /* totals */ }
+});
+document.getElementById('team-tbody').addEventListener('click',e=>{
+  const sp=e.target.closest('[data-spec]'); const del=e.target.closest('[data-del-team]');
+  if(sp){ const tr=e.target.closest('tr'); const t=state.team.find(x=>x.id==tr.dataset.id); const s=sp.dataset.spec; t.specs=t.specs||[]; if(t.specs.includes(s)) t.specs=t.specs.filter(x=>x!==s); else t.specs.push(s); sp.classList.toggle('on'); saveState(); }
+  if(del){ state.team=state.team.filter(x=>x.id!=del.dataset.delTeam); refreshAll(); }
+});
+document.getElementById('team-tbody').addEventListener('change',e=>{ if(e.target.dataset.tf) renderTeam(); });
+
+// case types
+document.getElementById('add-ct').addEventListener('click',()=>{ state.caseTypes.push({id:nextId++,name:'New Case Type',spec:'New',color:SCENARIO_COLORS[state.caseTypes.length%SCENARIO_COLORS.length],billing:{model:'flat',fee:2000,collectMonths:2},stages:[{name:'Intake',hrs:5,actor:'firm',min:0.5,exp:1,max:2},{name:'IRS Review',hrs:1,actor:'irs',min:2,exp:5,max:12},{name:'Resolution',hrs:4,actor:'firm',min:0.5,exp:1,max:2}]}); refreshAll(); });
+document.getElementById('ct-cards').addEventListener('input',e=>{
+  const ctf=e.target.dataset.ctf, sf=e.target.dataset.sf;
+  if(ctf){ const ct=getCaseType(+e.target.dataset.ct); if(!ct) return; const num=['billing.fee','billing.monthly','billing.collectMonths'].includes(ctf);
+    if(ctf.startsWith('billing.')){ const k=ctf.split('.')[1]; ct.billing=ct.billing||{}; ct.billing[k]= num?(parseFloat(e.target.value)||0):e.target.value; }
+    else ct[ctf]=e.target.value; saveState(); }
+  if(sf){ const tr=e.target.closest('tr'); const ct=getCaseType(+tr.dataset.ct); const st=ct.stages[+tr.dataset.si];
+    st[sf]= (sf==='name'||sf==='actor')? e.target.value : (parseFloat(e.target.value)||0); saveState(); }
+});
+document.getElementById('ct-cards').addEventListener('change',e=>{ if(e.target.dataset.ctf==='billing.model'||e.target.dataset.ctf==='color'||(e.target.dataset.sf==='actor')) renderCaseTypes(); });
+document.getElementById('ct-cards').addEventListener('click',e=>{
+  const addS=e.target.closest('[data-add-stage]'); const delS=e.target.closest('[data-del-stage]'); const delC=e.target.closest('[data-del-ct]');
+  if(addS){ const ct=getCaseType(+addS.dataset.addStage); ct.stages.push({name:'New Stage',hrs:4,actor:'firm',min:0.5,exp:1,max:2}); refreshAll(); }
+  if(delS){ const ct=getCaseType(+delS.dataset.delStage); ct.stages.splice(+delS.dataset.si,1); refreshAll(); }
+  if(delC){ state.caseTypes=state.caseTypes.filter(c=>c.id!=delC.dataset.delCt); refreshAll(); }
+});
+
+// caseload
+document.getElementById('add-case').addEventListener('click',()=>{ const ct=state.caseTypes[0]; state.cases.push({id:nextId++,client:'New Client',ctId:ct?ct.id:1,stageIndex:0,monthsIn:0,assignee:state.team[0]?state.team[0].id:1}); refreshAll(); });
+document.getElementById('caseload-tbody').addEventListener('input',e=>{
+  const tr=e.target.closest('tr'); const c=state.cases.find(x=>x.id==tr.dataset.id); const f=e.target.dataset.cf; if(!f) return;
+  c[f]= (f==='client')? e.target.value : (parseFloat(e.target.value)||0);
+  if(f==='ctId') c.stageIndex=0;
+  saveState();
+});
+document.getElementById('caseload-tbody').addEventListener('change',e=>{ if(['ctId','stageIndex','monthsIn'].includes(e.target.dataset.cf)) renderCaseload(); });
+document.getElementById('caseload-tbody').addEventListener('click',e=>{ const d=e.target.closest('[data-del-case]'); if(d){ state.cases=state.cases.filter(x=>x.id!=d.dataset.delCase); refreshAll(); } });
+
+// pipeline
+document.getElementById('add-pipeline').addEventListener('click',()=>{ const ct=state.caseTypes[0]; state.pipeline.push({id:nextId++,label:'New Intake',ctId:ct?ct.id:1,entryMo:0,count:1,close:50}); refreshAll(); });
+document.getElementById('pipeline-tbody').addEventListener('input',e=>{
+  const tr=e.target.closest('tr'); const p=state.pipeline.find(x=>x.id==tr.dataset.id); const f=e.target.dataset.pf; if(!f) return;
+  p[f]= (f==='label')? e.target.value : (parseFloat(e.target.value)||0); renderPipeline(); saveState();
+});
+document.getElementById('pipeline-tbody').addEventListener('click',e=>{ const d=e.target.closest('[data-del-pipeline]'); if(d){ state.pipeline=state.pipeline.filter(x=>x.id!=d.dataset.delPipeline); refreshAll(); } });
+
+// scenarios
+document.getElementById('add-scenario').addEventListener('click',()=>{ const id=nextScenarioId(); state.scenarios.push({id,name:'New Scenario',color:SCENARIO_COLORS[state.scenarios.length%SCENARIO_COLORS.length],irsDelay:0,intakeMult:100,hires:[]}); refreshAll(); });
+document.getElementById('scenario-cards').addEventListener('input',e=>{
+  const f=e.target.dataset.scf; if(!f) return; const sc=getScenario(e.target.dataset.sc); if(!sc) return;
+  sc[f]= (f==='name')? e.target.value : (parseFloat(e.target.value)||0);
+  if(f==='irsDelay'||f==='intakeMult'){ const v=e.target.parentElement.querySelector('.sc-slider-val'); if(v) v.textContent=(f==='irsDelay'?(sc.irsDelay>0?'+':'')+sc.irsDelay:sc.intakeMult)+'%'; }
+  saveState();
+});
+document.getElementById('scenario-cards').addEventListener('click',e=>{
+  const addH=e.target.closest('[data-add-hire]'); const delH=e.target.closest('[data-del-hire]'); const delSc=e.target.closest('[data-del-sc]');
+  if(addH){ const id=addH.dataset.addHire; const sc=getScenario(id); const role=document.querySelector(`[data-hire-role="${id}"]`).value; const fte=parseFloat(document.querySelector(`[data-hire-fte="${id}"]`).value)||1; const mo=+document.querySelector(`[data-hire-mo="${id}"]`).value; sc.hires=sc.hires||[]; sc.hires.push({role,fte,startMo:mo,specs:[]}); refreshAll(); }
+  if(delH){ const sc=getScenario(delH.dataset.delHire); sc.hires.splice(+delH.dataset.hi,1); refreshAll(); }
+  if(delSc){ const id=delSc.dataset.delSc; state.scenarios=state.scenarios.filter(s=>s.id!==id); state.compareScenarios=state.compareScenarios.filter(x=>x!==id); refreshAll(); }
+});
+
+// header actions
+document.getElementById('reset-btn').addEventListener('click',()=>{ if(confirm('Reset all data to defaults? This clears your saved inputs.')){ localStorage.removeItem(STORAGE_KEY); state=structuredClone(DEFAULT_DATA); nextId=computeNextId(); init(); showToast('Reset to defaults'); } });
+document.getElementById('export-json-btn').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`tax-resolution-atlas-${new Date().toISOString().slice(0,10)}.json`; a.click(); showToast('Exported JSON');
+});
+document.getElementById('import-json-input').addEventListener('change',e=>{
+  const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
+  reader.onload=()=>{ try{ const parsed=JSON.parse(reader.result); state=Object.assign(structuredClone(DEFAULT_DATA),parsed); state.assumptions=Object.assign(structuredClone(DEFAULT_DATA.assumptions),parsed.assumptions||{}); nextId=computeNextId(); saveState(); init(); showToast('Imported'); }catch(err){ alert('Invalid JSON'); } };
+  reader.readAsText(file); e.target.value='';
+});
+document.getElementById('export-pdf-btn').addEventListener('click',()=>{ document.querySelectorAll('.tab-panel').forEach(p=>p.classList.add('active')); window.print(); setTimeout(()=>{ const active=document.querySelector('.tab.active').dataset.tab; document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===active)); },500); });
+
+// close add-menu on outside click
+document.addEventListener('click',e=>{ if(!e.target.closest('.sp-add-wrap')){ const mn=document.getElementById('sp-add-menu'); if(mn) mn.classList.remove('open'); } });
+
+// ===== INIT =====
+function init(){
+  renderMonthPills();
+  document.querySelectorAll('#view-toggle .view-btn').forEach(x=>x.classList.toggle('active',x.dataset.view===(state.view||'auto')));
+  renderScenarioPicker();
+  renderDashboard();
+  renderAssumptions(); renderTeam(); renderCaseTypes(); renderCaseload(); renderPipeline(); renderScenarios();
+}
+init();
+</script>
+</body>
+</html>
