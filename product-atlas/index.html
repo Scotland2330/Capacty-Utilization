@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capacity Atlas — Product &amp; Manufacturing</title>
+<style>
+  :root{--green:#37562d;--green-d:#1f3219;--orange:#f89400;--ink:#0a0a0a;--muted:#5e6f5a;
+        --line:#d5d2c5;--bg:#f5f3ee;--paper:#fff;--sell:#37562d;--hold:#c47600;--hire:#a13522;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font:14px/1.5 Inter,-apple-system,system-ui,sans-serif}
+  .head{background:#0a0a0a;color:#e0ddd2;padding:16px 28px;box-shadow:0 2px 0 var(--orange)}
+  .head h1{font:600 20px Oswald,Impact,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--orange)}
+  .head .tag{font:11px "JetBrains Mono",monospace;letter-spacing:.16em;text-transform:uppercase;color:#c5c8c0;margin-top:4px}
+  main{max-width:1200px;margin:0 auto;padding:24px 28px}
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+  select,button{font:inherit;padding:7px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);cursor:pointer}
+  .verdict{padding:18px 22px;border:2px solid;border-radius:12px;margin-bottom:20px}
+  .verdict.SELL{background:#eef3e5;border-color:var(--sell)} .verdict.HOLD{background:#fdf3df;border-color:var(--hold)} .verdict.HIRE{background:#fae8e1;border-color:var(--hire)}
+  .verdict h2{font:600 24px Oswald,sans-serif;text-transform:uppercase;color:var(--green-d)}
+  .verdict.HIRE h2{color:var(--hire)} .verdict p{color:var(--muted);margin-top:6px}
+  table{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:20px;font-size:12.5px}
+  th{background:var(--green-d);color:#fff;font:700 10px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;padding:10px 8px;text-align:right}
+  th:first-child{text-align:left} td{padding:8px;text-align:right;font-family:"JetBrains Mono",monospace;border-bottom:1px solid #eee}
+  td:first-child{text-align:left;font-family:Inter,sans-serif;font-weight:600;color:var(--muted)}
+  .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-weight:700;font-size:11px}
+  .SELL{background:#e2ebd6;color:var(--sell)} .HOLD{background:#fce8c5;color:var(--hold)} .HIRE{background:#f5d8cf;color:var(--hire)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+  .card{background:var(--paper);border:1px solid var(--line);border-top:3px solid var(--green);border-radius:8px;padding:14px 16px}
+  .card .l{font:700 10px "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .card .v{font:600 26px Oswald,sans-serif;color:var(--green-d);margin-top:6px} .card .s{font-size:11px;color:var(--muted);margin-top:4px}
+  .note{font-size:12px;color:var(--muted);background:#fffef5;border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+  code{font-family:"JetBrains Mono",monospace;background:#eee;padding:1px 5px;border-radius:3px}
+</style>
+</head>
+<body>
+<div class="head">
+  <h1>Capacity Atlas — Product &amp; Manufacturing</h1>
+  <div class="tag">Deterministic scheduling · Hours by skill · Sell / Hold / Hire</div>
+</div>
+<main>
+  <div class="bar">
+    <label>Scenario <select id="scenario"></select></label>
+    <label>Constraint view <select id="skill"></select></label>
+    <label>Month <select id="month"></select></label>
+    <span style="margin-left:auto;color:var(--muted);font-size:12px">Starter UI over <code>capacity-engine.js</code> — build on it.</span>
+  </div>
+
+  <div class="verdict" id="verdict"><h2>—</h2><p></p></div>
+  <div class="cards" id="cards"></div>
+
+  <h3 style="font:600 15px Oswald,sans-serif;text-transform:uppercase;color:var(--green-d);margin-bottom:8px">Capacity vs. Demand</h3>
+  <table id="grid"></table>
+
+  <h3 style="font:600 15px Oswald,sans-serif;text-transform:uppercase;color:var(--green-d);margin-bottom:8px">Cash &amp; Backlog</h3>
+  <table id="cash"></table>
+
+  <div class="note" id="conc"></div>
+</main>
+
+<script type="module">
+import { DEFAULT_DATA, MONTHS, compute, computeCash, computeBacklog, computeConcentration, verdictFor } from './capacity-engine.js';
+
+const state = structuredClone(DEFAULT_DATA);
+const skills = ['none', ...new Set(state.employees.map(e => e.skill))];
+let sel = { scenario: 'baseline', skill: state.assumptions.constraintSkill || 'none', month: 0 };
+
+const el = id => document.getElementById(id);
+el('scenario').innerHTML = ['baseline', ...state.scenarios.map(s=>s.id)]
+  .map(id => `<option value="${id}">${id==='baseline'?'Baseline':state.scenarios.find(s=>s.id===id).name}</option>`).join('');
+el('skill').innerHTML = skills.map(s=>`<option value="${s}" ${s===sel.skill?'selected':''}>${s==='none'?'Whole shop':s}</option>`).join('');
+el('month').innerHTML = MONTHS.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+el('scenario').onchange = e => { sel.scenario = e.target.value; render(); };
+el('skill').onchange = e => { sel.skill = e.target.value; render(); };
+el('month').onchange = e => { sel.month = +e.target.value; render(); };
+
+const $n = n => Math.round(n).toLocaleString();
+const $c = n => '$' + Math.round(n).toLocaleString();
+const $p = n => (n*100).toFixed(0) + '%';
+
+function render(){
+  const calc = compute(state, sel.scenario, sel.skill);
+  const cash = computeCash(state, calc, sel.scenario);
+  const back = computeBacklog(state, calc);
+  const conc = computeConcentration(state);
+  const m = sel.month;
+
+  const v = verdictFor(state, calc, m);
+  const vEl = el('verdict'); vEl.className = 'verdict ' + v.action;
+  vEl.querySelector('h2').textContent = v.headline;
+  vEl.querySelector('p').textContent = v.detail;
+
+  el('cards').innerHTML = [
+    ['Capacity', $n(calc.capByMonth[m])+' hrs', 'this month'],
+    ['Total utilization', $p(calc.totalUtil[m]), 'committed + pipeline'],
+    ['Sellable capacity', $c(calc.sellableRev[m]), $n(calc.sellableHrs[m])+' hrs open'],
+    ['Backlog', back.months.toFixed(1)+' mo', back.health],
+  ].map(([l,val,s])=>`<div class="card"><div class="l">${l}</div><div class="v">${val}</div><div class="s">${s}</div></div>`).join('');
+
+  el('grid').innerHTML = `<tr><th>Metric</th>${MONTHS.map(x=>`<th>${x}</th>`).join('')}</tr>` +
+    [['Capacity (hrs)', calc.capByMonth, $n],
+     ['Committed (hrs)', calc.committedByMonth, $n],
+     ['Pipeline wtd (hrs)', calc.pipelineByMonth, $n],
+     ['Total utilization', calc.totalUtil, $p],
+     ['Forecast revenue', calc.totalForecast, $c],
+     ['Gross margin', calc.grossMargin, $c]]
+    .map(([l,arr,f])=>`<tr><td>${l}</td>${arr.map(x=>`<td>${f(x)}</td>`).join('')}</tr>`).join('') +
+    `<tr><td>Action</td>${calc.action.map(x=>`<td><span class="pill ${x}">${x}</span></td>`).join('')}</tr>`;
+
+  el('cash').innerHTML = `<tr><th>Metric</th>${MONTHS.map(x=>`<th>${x}</th>`).join('')}</tr>` +
+    [['Cash inflow', cash.inflow, $c],
+     ['Cash outflow', cash.outflow, $c],
+     ['Net cash', cash.net, $c],
+     ['Cumulative cash', cash.cumulative, $c]]
+    .map(([l,arr,f])=>`<tr><td>${l}</td>${arr.map(x=>`<td>${f(x)}</td>`).join('')}</tr>`).join('');
+
+  el('conc').innerHTML = '<strong>Customer concentration:</strong> ' +
+    conc.rows.map(r=>`${r.customer} ${r.pct.toFixed(0)}%${r.flagged?' ⚠':''}`).join(' · ');
+}
+render();
+</script>
+</body>
+</html>
