@@ -3,48 +3,204 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Capacity Atlas — Project Hub</title>
+<title>Capacity Atlas</title>
 <style>
+  :root{
+    --ink:#14212e; --muted:#5b6b7a; --line:#dce2ea; --bg:#f4f6f9; --paper:#fff; --soft:#f8fafc;
+    --good:#2f7d5b; --warn:#b9831a; --bad:#b3402e;
+    --good-bg:#e4f0ea; --warn-bg:#fbf1da; --bad-bg:#f7e2dc;
+    --cap:#24384d; --cap-fill:#c3cedb; --dem:#2f6f4e; --risk:#b5432e;
+    --accent:#e08a1e; /* set per mode */
+  }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#0f1420;color:#e8ebf2;font:15px/1.6 Inter,-apple-system,system-ui,sans-serif;min-height:100vh}
-  .wrap{max-width:1000px;margin:0 auto;padding:64px 28px}
-  h1{font:600 34px Oswald,Impact,sans-serif;letter-spacing:.04em;text-transform:uppercase}
-  .sub{color:#9aa3b5;margin-top:10px;max-width:640px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:40px}
-  a.card{display:block;text-decoration:none;color:inherit;background:#171d2b;border:1px solid #28304260;border-radius:14px;padding:26px;transition:.15s}
-  a.card:hover{border-color:#c8961e;transform:translateY(-2px)}
-  .tag{font:700 10px "JetBrains Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:#c8961e}
-  .card h2{font:600 21px Oswald,sans-serif;text-transform:uppercase;margin:10px 0 8px;letter-spacing:.02em}
-  .card p{color:#9aa3b5;font-size:13.5px}
-  .mark{font:700 22px Oswald,sans-serif;color:#0f1420;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
-  .foot{margin-top:44px;color:#6b7488;font-size:12.5px}
+  body{background:var(--bg);color:var(--ink);font:14px/1.55 Inter,-apple-system,system-ui,Segoe UI,sans-serif}
+  .head{background:#0d1722;color:#e7ecf2;padding:16px 26px}
+  .head h1{font:600 21px Oswald,Impact,sans-serif;letter-spacing:.05em;text-transform:uppercase}
+  .head .sub{font:11px "JetBrains Mono",ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:#9fb0c2;margin-top:4px}
+  .tabs{display:flex;gap:8px;padding:14px 26px 0;background:#0d1722;flex-wrap:wrap}
+  .tab{font:600 13px Inter,sans-serif;padding:9px 18px;border:none;border-radius:9px 9px 0 0;background:#1b2836;color:#aebccb;cursor:pointer;border-bottom:3px solid transparent}
+  .tab.active{background:var(--bg);color:var(--ink);border-bottom-color:var(--accent)}
+  main{max-width:1140px;margin:0 auto;padding:22px 26px 60px}
+  .lens{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:9px;padding:13px 16px;color:var(--muted);font-size:13px;margin-bottom:18px}
+  .lens b{color:var(--ink)}
+  .section-l{font:700 10px "JetBrains Mono",monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 9px 2px}
+  .inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:22px}
+  .inp{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .inp label{display:block;font:600 11px Inter,sans-serif;color:var(--muted);margin-bottom:5px}
+  .inp .row{display:flex;align-items:baseline;gap:3px}
+  .inp .pre{color:var(--muted);font-size:13px} .inp .suf{color:var(--muted);font-size:12px}
+  .inp input{width:100%;border:none;border-bottom:1.5px solid var(--line);font:600 17px "JetBrains Mono",monospace;color:var(--ink);padding:2px 0;background:transparent;outline:none}
+  .inp input:focus{border-bottom-color:var(--accent)}
+  .verdict{border:2px solid;border-radius:13px;padding:18px 22px;margin-bottom:20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+  .verdict.good{background:var(--good-bg);border-color:var(--good)} .verdict.warn{background:var(--warn-bg);border-color:var(--warn)} .verdict.bad{background:var(--bad-bg);border-color:var(--bad)}
+  .verdict h2{font:600 23px Oswald,sans-serif;text-transform:uppercase;letter-spacing:.02em}
+  .verdict.good h2{color:var(--good)} .verdict.warn h2{color:var(--warn)} .verdict.bad h2{color:var(--bad)}
+  .verdict p{color:var(--muted);font-size:13.5px;margin-top:4px;max-width:640px}
+  .verdict .mo{margin-left:auto} .verdict select{font:inherit;padding:7px 11px;border:1px solid var(--line);border-radius:7px;background:var(--paper)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+  .card{background:var(--paper);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:9px;padding:14px 16px}
+  .card .l{font:700 10px "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .card .v{font:600 27px Oswald,sans-serif;margin:5px 0 3px} .card .s{font-size:11.5px;color:var(--muted)}
+  .card.good .v{color:var(--good)} .card.bad .v{color:var(--bad)} .card.warn .v{color:var(--warn)} .card.neutral .v{color:var(--cap)}
+  .chart{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:16px 18px;margin-bottom:22px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:6px}
+  .legend i{display:inline-block;width:16px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+  table{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:11px;overflow:hidden;font-size:12.5px}
+  th{background:#1b2b3b;color:#fff;font:700 10px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;padding:9px 7px;text-align:right}
+  th:first-child{text-align:left;padding-left:14px}
+  td{padding:8px 7px;text-align:right;font-family:"JetBrains Mono",monospace;border-bottom:1px solid #eef1f5}
+  td:first-child{text-align:left;padding-left:14px;font-family:Inter,sans-serif;font-weight:600;color:var(--muted)}
+  tr.sel td{background:#fffdf3}
+  .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-weight:700;font-size:10.5px;white-space:nowrap}
+  .pill.under{background:var(--good-bg);color:var(--good)} .pill.match{background:var(--warn-bg);color:var(--warn)} .pill.over{background:var(--bad-bg);color:var(--bad)}
+  .foot{margin-top:26px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  .foot button{font:inherit;padding:6px 12px;border:1px solid var(--line);border-radius:7px;background:var(--paper);cursor:pointer}
+  .tablewrap{overflow-x:auto}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="head">
   <h1>Capacity Atlas</h1>
-  <p class="sub">Three tools for deciding when a business is out of capacity and needs to sell, hold, hire, or add support — one for product/manufacturing, one for services, and a lightweight growth-stage version.</p>
-  <div class="grid">
-    <a class="card" href="product-atlas/index.html">
-      <div class="mark" style="background:linear-gradient(135deg,#f89400,#c47600)">▛</div>
-      <div class="tag">Project 1 · Deterministic</div>
-      <h2>Product &amp; Manufacturing</h2>
-      <p>You control the schedule. Jobs have known start dates and durations; capacity is billable hours by skill. Sell / Hold / Hire with cash, backlog, and concentration.</p>
-    </a>
-    <a class="card" href="service-atlas/index.html">
-      <div class="mark" style="background:linear-gradient(135deg,#c8961e,#9c7415)">§</div>
-      <div class="tag">Project 2 · Probabilistic</div>
-      <h2>Service Businesses</h2>
-      <p>You don't control the timeline. Cases move through stages with uncertain external waits; three constraints (caseload, surge, hours) and a P90 band. Generalized from tax resolution.</p>
-    </a>
-    <a class="card" href="lite/">
-      <div class="mark" style="background:linear-gradient(135deg,#2f7d5b,#245f45)">≡</div>
-      <div class="tag">Project 3 · Spreadsheet</div>
-      <h2>Capacity Atlas Lite</h2>
-      <p>Growth-stage Excel suite: revenue-based capacity, org &amp; hiring triggers, profitability of a new comp model, cash timing, and a comp optimizer.</p>
-    </a>
-  </div>
-  <p class="foot">Each project is self-contained. See the README in each folder for the model and core functions.</p>
+  <div class="sub">One tool · three lenses — Product · Service · Nonprofit</div>
 </div>
+<div class="tabs" id="tabs"></div>
+<main>
+  <div class="lens" id="lens"></div>
+  <div class="section-l">Assumptions — edit to your numbers</div>
+  <div class="inputs" id="inputs"></div>
+  <div class="verdict" id="verdict">
+    <div><h2>—</h2><p></p></div>
+    <div class="mo"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px">Month</label><select id="month"></select></div>
+  </div>
+  <div class="cards" id="cards"></div>
+  <div class="chart"><div id="svg"></div><div class="legend" id="legend"></div></div>
+  <div class="section-l">Capacity vs. demand — 12 months</div>
+  <div class="tablewrap"><table id="grid"></table></div>
+  <div class="foot">
+    <span id="footnote"></span>
+    <button id="reset">Reset this mode</button>
+  </div>
+</main>
+
+<script src="capacity-atlas.js"></script>
+<script>
+// MODES, MODE_ORDER, MONTHS, fmt are globals provided by capacity-atlas.js
+const ACCENTS = { product:'#e08a1e', service:'#c8961e', nonprofit:'#2f8f6b' };
+const LS = 'capacity-atlas-v1';
+const el = id => document.getElementById(id);
+
+function loadState(){ try{ return JSON.parse(localStorage.getItem(LS)) || {}; }catch(e){ return {}; } }
+function saveState(){ try{ localStorage.setItem(LS, JSON.stringify(store)); }catch(e){} }
+const store = loadState();
+if(!store.mode) store.mode = 'product';
+if(!store.levers) store.levers = {};
+if(store.month===undefined) store.month = 3;
+
+function leversFor(mode){
+  const M = MODES[mode];
+  if(!store.levers[mode]) store.levers[mode] = Object.fromEntries(M.fields.map(f=>[f.key,f.def]));
+  // backfill any new fields
+  M.fields.forEach(f=>{ if(store.levers[mode][f.key]===undefined) store.levers[mode][f.key]=f.def; });
+  return store.levers[mode];
+}
+
+function renderTabs(){
+  el('tabs').innerHTML = MODE_ORDER.map(k =>
+    `<button class="tab ${k===store.mode?'active':''}" data-m="${k}">${MODES[k].vocab.title}</button>`).join('');
+  el('tabs').querySelectorAll('.tab').forEach(b=> b.onclick = ()=>{ store.mode=b.dataset.m; saveState(); render(); });
+}
+
+function renderInputs(M, L){
+  el('inputs').innerHTML = M.fields.map(f=>`
+    <div class="inp"><label>${f.label}</label>
+      <div class="row">${f.prefix?`<span class="pre">${f.prefix}</span>`:''}
+        <input type="number" data-k="${f.key}" value="${L[f.key]}" min="${f.min}" max="${f.max}" step="${f.step}">
+        ${f.suffix?`<span class="suf">${f.suffix}</span>`:''}</div></div>`).join('');
+  el('inputs').querySelectorAll('input').forEach(inp=> inp.oninput = ()=>{
+    let v = parseFloat(inp.value); if(!isFinite(v)) return;
+    L[inp.dataset.k] = v; saveState(); paint(M, L);
+  });
+}
+
+function svgChart(M, c){
+  const W=1080,H=300,pl=52,pr=16,pt=14,pb=34, iw=W-pl-pr, ih=H-pt-pb;
+  const maxY = Math.max(...c.capacity, ...c.upper)*1.12 || 1;
+  const x = i => pl + iw*(i/11);
+  const y = v => pt + ih*(1 - v/maxY);
+  const acc = ACCENTS[M.key];
+  const pts = arr => arr.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  // capacity area
+  const capArea = `${pl},${y(0)} ${pts(c.capacity)} ${x(11)},${y(0)}`;
+  // gridlines / y labels
+  let grid='';
+  for(let g=0; g<=4; g++){ const gv=maxY*g/4, gy=y(gv);
+    grid += `<line x1="${pl}" y1="${gy}" x2="${W-pr}" y2="${gy}" stroke="#eef1f5"/>`+
+            `<text x="${pl-8}" y="${gy+3}" text-anchor="end" font-size="10" fill="#8a99a8" font-family="JetBrains Mono,monospace">${fmt.n(gv)}</text>`; }
+  const xl = MONTHS.map((m,i)=>`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-size="10" fill="#8a99a8" font-family="JetBrains Mono,monospace">${m[0]}</text>`).join('');
+  const selX = x(store.month);
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img">
+    ${grid}
+    <line x1="${selX}" y1="${pt}" x2="${selX}" y2="${pt+ih}" stroke="${acc}" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6"/>
+    <polygon points="${capArea}" fill="var(--cap-fill)" opacity="0.55"/>
+    <polyline points="${pts(c.capacity)}" fill="none" stroke="var(--cap)" stroke-width="2"/>
+    <polyline points="${pts(c.committed)}" fill="none" stroke="var(--dem)" stroke-width="2.5"/>
+    <polyline points="${pts(c.upper)}" fill="none" stroke="var(--risk)" stroke-width="2" stroke-dasharray="6 4"/>
+    ${xl}
+  </svg>`;
+}
+
+function paint(M, L){
+  document.documentElement.style.setProperty('--accent', ACCENTS[M.key]);
+  const c = M.compute(L);
+  const v = M.vocab, m = store.month;
+
+  el('lens').innerHTML = `<b>${v.title}.</b> ${v.lens}`;
+
+  // verdict
+  const vd = M.verdict(L, c, m);
+  const ve = el('verdict'); ve.className = 'verdict '+vd.tone;
+  ve.querySelector('h2').textContent = vd.headline;
+  ve.querySelector('p').textContent = vd.detail;
+
+  // cards
+  el('cards').innerHTML = M.metrics(L, c).map(k=>
+    `<div class="card ${k.tone||'neutral'}"><div class="l">${k.label}</div><div class="v">${k.value}</div><div class="s">${k.sub}</div></div>`).join('');
+
+  // chart + legend
+  el('svg').innerHTML = svgChart(M, c);
+  el('legend').innerHTML =
+    `<span><i style="background:var(--cap)"></i>${v.capacityName}</span>`+
+    `<span><i style="background:var(--dem)"></i>${M.key==='service'?'Expected caseload':M.key==='nonprofit'?'People served':'Booked work'}</span>`+
+    `<span><i style="background:var(--risk)"></i>${M.key==='service'?'P90 surge':M.key==='nonprofit'?'Total need':'Booked + pipeline'}</span>`;
+
+  // table
+  const unit = c.unit;
+  const rows = [
+    [v.capacityName+' ('+unit+')', c.capacity, fmt.n],
+    [(M.key==='service'?'Expected':M.key==='nonprofit'?'Served':'Booked')+' ('+unit+')', c.committed, fmt.n],
+    [(M.key==='service'?'P90 surge':M.key==='nonprofit'?'Total need':'+ Pipeline')+' ('+unit+')', c.upper, fmt.n],
+    ['Utilization', c.utilization, fmt.pct]
+  ];
+  if(c.secondary) rows.push([M.key==='nonprofit'?'Funding coverage':'Surge util', c.secondary, fmt.pct]);
+  el('grid').innerHTML =
+    `<tr><th>Metric</th>${MONTHS.map((x,i)=>`<th${i===m?' style="color:'+ACCENTS[M.key]+'"':''}>${x}</th>`).join('')}</tr>`+
+    rows.map(([lab,arr,f])=>`<tr class="${''}"><td>${lab}</td>${arr.map((x,i)=>`<td${i===m?' class="sel"':''}>${f(x)}</td>`).join('')}</tr>`).join('')+
+    `<tr><td>Action</td>${c.action.map((a,i)=>`<td${i===m?' class="sel"':''}><span class="pill ${a}">${(v.pill&&v.pill[a])||v[a]}</span></td>`).join('')}</tr>`;
+
+  el('footnote').textContent = 'Sample data is illustrative — replace with your own. Saved locally in your browser.';
+}
+
+function render(){
+  const M = MODES[store.mode];
+  const L = leversFor(store.mode);
+  renderTabs();
+  el('month').innerHTML = MONTHS.map((m,i)=>`<option value="${i}" ${i===store.month?'selected':''}>${m}</option>`).join('');
+  el('month').onchange = e=>{ store.month=+e.target.value; saveState(); paint(M, L); };
+  el('reset').onclick = ()=>{ store.levers[store.mode] = Object.fromEntries(M.fields.map(f=>[f.key,f.def])); saveState(); render(); };
+  renderInputs(M, L);
+  paint(M, L);
+}
+render();
+</script>
 </body>
 </html>
