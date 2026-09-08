@@ -9,7 +9,7 @@
     --ink:#14212e; --muted:#5b6b7a; --line:#dce2ea; --bg:#f4f6f9; --paper:#fff; --soft:#f8fafc;
     --good:#2f7d5b; --warn:#b9831a; --bad:#b3402e;
     --good-bg:#e4f0ea; --warn-bg:#fbf1da; --bad-bg:#f7e2dc;
-    --cap:#24384d; --cap-fill:#c3cedb; --dem:#2f6f4e; --risk:#b5432e;
+    --cap:#24384d; --cap-fill:#c3cedb; --dem:#2f6f4e; --risk:#b5432e; --rec:#5f8aa6; --rec-fill:#bcd0dd;
     --accent:#e08a1e; /* set per mode */
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -56,6 +56,13 @@
   .foot{margin-top:26px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
   .foot button{font:inherit;padding:6px 12px;border:1px solid var(--line);border-radius:7px;background:var(--paper);cursor:pointer}
   .tablewrap{overflow-x:auto}
+  .revsplit{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:14px 18px;margin-bottom:22px}
+  .rs-bar{height:14px;border-radius:7px;overflow:hidden;background:var(--dem);display:flex}
+  .rs-rec{height:100%;background:var(--rec)}
+  .rs-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px;color:var(--muted);gap:12px;flex-wrap:wrap}
+  #projwrap{border-top:2px solid var(--line);padding-top:20px;margin-top:6px}
+  .proj-head{margin-bottom:12px}
+  .proj-sub{color:var(--muted);font-size:13px;margin-top:4px;max-width:660px}
 </style>
 </head>
 <body>
@@ -73,9 +80,22 @@
     <div class="mo"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px">Month</label><select id="month"></select></div>
   </div>
   <div class="cards" id="cards"></div>
+  <div class="revsplit" id="revsplit" hidden></div>
   <div class="chart"><div id="svg"></div><div class="legend" id="legend"></div></div>
   <div class="section-l">Capacity vs. demand — 12 months</div>
   <div class="tablewrap"><table id="grid"></table></div>
+
+  <div id="projwrap" hidden>
+    <div class="proj-head">
+      <div class="section-l" style="margin:0">Projection — next 24 months</div>
+      <p class="proj-sub">Grow your recurring book and project work forward to see MRR, revenue, and the month you cross the hire line.</p>
+    </div>
+    <div class="inputs" id="pinputs"></div>
+    <div class="cards" id="pcards"></div>
+    <div class="chart"><div id="psvg"></div><div class="legend" id="plegend"></div></div>
+    <div class="tablewrap"><table id="pgrid"></table></div>
+  </div>
+
   <div class="foot">
     <span id="footnote"></span>
     <button id="reset">Reset this mode</button>
@@ -94,6 +114,7 @@ function saveState(){ try{ localStorage.setItem(LS, JSON.stringify(store)); }cat
 const store = loadState();
 if(!store.mode) store.mode = 'product';
 if(!store.levers) store.levers = {};
+if(!store.plevers) store.plevers = {};
 if(store.month===undefined) store.month = 3;
 
 function leversFor(mode){
@@ -141,8 +162,10 @@ function svgChart(M, c){
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img">
     ${grid}
     <line x1="${selX}" y1="${pt}" x2="${selX}" y2="${pt+ih}" stroke="${acc}" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6"/>
-    <polygon points="${capArea}" fill="var(--cap-fill)" opacity="0.55"/>
+    <polygon points="${capArea}" fill="var(--cap-fill)" opacity="0.45"/>
+    ${c.recurring?`<polygon points="${pl},${y(0)} ${pts(c.recurring)} ${x(11)},${y(0)}" fill="var(--rec-fill)" opacity="0.85"/>`:''}
     <polyline points="${pts(c.capacity)}" fill="none" stroke="var(--cap)" stroke-width="2"/>
+    ${c.recurring?`<polyline points="${pts(c.recurring)}" fill="none" stroke="var(--rec)" stroke-width="1.5" stroke-dasharray="2 2"/>`:''}
     <polyline points="${pts(c.committed)}" fill="none" stroke="var(--dem)" stroke-width="2.5"/>
     <polyline points="${pts(c.upper)}" fill="none" stroke="var(--risk)" stroke-width="2" stroke-dasharray="6 4"/>
     ${xl}
@@ -168,26 +191,117 @@ function paint(M, L){
 
   // chart + legend
   el('svg').innerHTML = svgChart(M, c);
+  const totalName = M.key==='service'?'Expected total':M.key==='nonprofit'?'People served':'Booked total';
+  const upperName = M.key==='service'?'P90 surge':M.key==='nonprofit'?'Total need':'Booked + pipeline';
   el('legend').innerHTML =
     `<span><i style="background:var(--cap)"></i>${v.capacityName}</span>`+
-    `<span><i style="background:var(--dem)"></i>${M.key==='service'?'Expected caseload':M.key==='nonprofit'?'People served':'Booked work'}</span>`+
-    `<span><i style="background:var(--risk)"></i>${M.key==='service'?'P90 surge':M.key==='nonprofit'?'Total need':'Booked + pipeline'}</span>`;
+    (c.recurring?`<span><i style="background:var(--rec)"></i>Recurring floor</span>`:'')+
+    `<span><i style="background:var(--dem)"></i>${totalName}</span>`+
+    `<span><i style="background:var(--risk)"></i>${upperName}</span>`;
 
   // table
   const unit = c.unit;
-  const rows = [
-    [v.capacityName+' ('+unit+')', c.capacity, fmt.n],
-    [(M.key==='service'?'Expected':M.key==='nonprofit'?'Served':'Booked')+' ('+unit+')', c.committed, fmt.n],
-    [(M.key==='service'?'P90 surge':M.key==='nonprofit'?'Total need':'+ Pipeline')+' ('+unit+')', c.upper, fmt.n],
-    ['Utilization', c.utilization, fmt.pct]
-  ];
+  const rows = [[v.capacityName+' ('+unit+')', c.capacity, fmt.n]];
+  if(c.recurring){
+    rows.push(['Recurring floor ('+unit+')', c.recurring, fmt.n]);
+    rows.push([v.projNoun+' work ('+unit+')', c.projectDemand, fmt.n]);
+  }
+  rows.push([totalName+' ('+unit+')', c.committed, fmt.n]);
+  rows.push([upperName+' ('+unit+')', c.upper, fmt.n]);
+  rows.push(['Utilization', c.utilization, fmt.pct]);
   if(c.secondary) rows.push([M.key==='nonprofit'?'Funding coverage':'Surge util', c.secondary, fmt.pct]);
   el('grid').innerHTML =
     `<tr><th>Metric</th>${MONTHS.map((x,i)=>`<th${i===m?' style="color:'+ACCENTS[M.key]+'"':''}>${x}</th>`).join('')}</tr>`+
-    rows.map(([lab,arr,f])=>`<tr class="${''}"><td>${lab}</td>${arr.map((x,i)=>`<td${i===m?' class="sel"':''}>${f(x)}</td>`).join('')}</tr>`).join('')+
+    rows.map(([lab,arr,f])=>`<tr><td>${lab}</td>${arr.map((x,i)=>`<td${i===m?' class="sel"':''}>${f(x)}</td>`).join('')}</tr>`).join('')+
     `<tr><td>Action</td>${c.action.map((a,i)=>`<td${i===m?' class="sel"':''}><span class="pill ${a}">${(v.pill&&v.pill[a])||v[a]}</span></td>`).join('')}</tr>`;
 
+  // revenue split (modes with recurring)
+  if(c.rev){
+    el('revsplit').hidden=false;
+    const r=c.rev, pctRec=r.totalYr>0?r.recYr/r.totalYr:0;
+    el('revsplit').innerHTML =
+      `<div class="rs-bar"><div class="rs-rec" style="width:${(pctRec*100).toFixed(0)}%"></div></div>`+
+      `<div class="rs-labels"><span><b style="color:var(--rec)">${fmt.usdk(r.recYr)}/yr</b> recurring (MRR ${fmt.usd(r.mrr)}/mo)</span>`+
+      `<span><b style="color:var(--dem)">${fmt.usdk(r.projYr)}/yr</b> ${v.projNoun.toLowerCase()}</span></div>`;
+  } else el('revsplit').hidden=true;
+
+  // projection
+  if(M.projFields){ el('projwrap').hidden=false; paintProj(M, L); } else el('projwrap').hidden=true;
+
   el('footnote').textContent = 'Sample data is illustrative — replace with your own. Saved locally in your browser.';
+}
+
+// ---- Projection ----
+function pleversFor(mode){
+  const M=MODES[mode]; if(!M.projFields) return {};
+  if(!store.plevers[mode]) store.plevers[mode]=Object.fromEntries(M.projFields.map(f=>[f.key,f.def]));
+  M.projFields.forEach(f=>{ if(store.plevers[mode][f.key]===undefined) store.plevers[mode][f.key]=f.def; });
+  return store.plevers[mode];
+}
+function renderPInputs(M){
+  const PL=pleversFor(M.key);
+  el('pinputs').innerHTML = M.projFields.map(f=>`
+    <div class="inp"><label>${f.label}</label>
+      <div class="row">${f.prefix?`<span class="pre">${f.prefix}</span>`:''}
+        <input type="number" data-k="${f.key}" value="${PL[f.key]}" min="${f.min}" max="${f.max}" step="${f.step}">
+        ${f.suffix?`<span class="suf">${f.suffix}</span>`:''}</div></div>`).join('');
+  el('pinputs').querySelectorAll('input').forEach(inp=> inp.oninput=()=>{
+    let v=parseFloat(inp.value); if(!isFinite(v)) return;
+    PL[inp.dataset.k]=v; saveState(); paintProj(M, leversFor(M.key));
+  });
+}
+function projSvg(M, p){
+  const W=1080,H=300,pl=52,pr=16,pt=14,pb=34,iw=W-pl-pr,ih=H-pt-pb, H0=p.horizon;
+  const maxY=Math.max(p.cap, ...p.demand)*1.1||1;
+  const x=i=>pl+iw*(i/(H0-1)), y=v=>pt+ih*(1-v/maxY);
+  const pts=arr=>arr.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  let grid='';
+  for(let g=0;g<=4;g++){const gv=maxY*g/4,gy=y(gv);
+    grid+=`<line x1="${pl}" y1="${gy}" x2="${W-pr}" y2="${gy}" stroke="#eef1f5"/>`+
+          `<text x="${pl-8}" y="${gy+3}" text-anchor="end" font-size="10" fill="#8a99a8" font-family="JetBrains Mono,monospace">${fmt.n(gv)}</text>`;}
+  let xl='';
+  for(let i=0;i<H0;i+=3) xl+=`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-size="10" fill="#8a99a8" font-family="JetBrains Mono,monospace">M${i+1}</text>`;
+  const ceil=p.cap*p.upper/100;
+  const capY=y(p.cap).toFixed(1), ceilY=y(ceil).toFixed(1);
+  const recArea=`${pl},${y(0)} ${pts(p.recurring)} ${x(H0-1)},${y(0)}`;
+  let hire='';
+  if(p.hireMonth){ const hx=x(p.hireMonth-1);
+    hire=`<line x1="${hx}" y1="${pt}" x2="${hx}" y2="${pt+ih}" stroke="var(--risk)" stroke-width="1.5"/>`+
+         `<text x="${hx+4}" y="${pt+12}" font-size="10" fill="var(--risk)" font-family="JetBrains Mono,monospace">hire M${p.hireMonth}</text>`; }
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img">
+    ${grid}
+    <polygon points="${recArea}" fill="var(--rec-fill)" opacity="0.8"/>
+    <line x1="${pl}" y1="${capY}" x2="${x(H0-1)}" y2="${capY}" stroke="var(--cap)" stroke-width="2"/>
+    <line x1="${pl}" y1="${ceilY}" x2="${x(H0-1)}" y2="${ceilY}" stroke="var(--cap)" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
+    <polyline points="${pts(p.recurring)}" fill="none" stroke="var(--rec)" stroke-width="1.5" stroke-dasharray="2 2"/>
+    <polyline points="${pts(p.demand)}" fill="none" stroke="var(--dem)" stroke-width="2.5"/>
+    ${hire}${xl}
+  </svg>`;
+}
+function paintProj(M, L){
+  const PL=pleversFor(M.key), p=M.project({...L,...PL},24), end=p.horizon-1;
+  el('psvg').innerHTML=projSvg(M,p);
+  el('plegend').innerHTML=
+    `<span><i style="background:var(--cap)"></i>Capacity + hire ceiling</span>`+
+    `<span><i style="background:var(--rec)"></i>Recurring floor</span>`+
+    `<span><i style="background:var(--dem)"></i>Total demand</span>`;
+  el('pcards').innerHTML=[
+    ['MRR at M'+p.horizon, fmt.usdk(p.mrr[end])+'/mo', 'from '+fmt.usdk(p.mrr[0])+'/mo now', 'good'],
+    ['Revenue at M'+p.horizon, fmt.usdk(p.revenue[end])+'/mo', 'from '+fmt.usdk(p.revenue[0])+'/mo now', 'neutral'],
+    ['Hire line', p.hireMonth?('Month '+p.hireMonth):('clear '+p.horizon+' mo'), p.hireMonth?('utilization crosses '+p.upper+'%'):'no hire needed', p.hireMonth?'bad':'good'],
+    ['Retainer clients', fmt.n1(p.clients[end]), 'from '+fmt.n1(p.clients[0])+' now', 'neutral']
+  ].map(([l,val,s,t])=>`<div class="card ${t}"><div class="l">${l}</div><div class="v">${val}</div><div class="s">${s}</div></div>`).join('');
+  const idx=[]; for(let i=2;i<p.horizon;i+=3) idx.push(i); if(idx[idx.length-1]!==end) idx.push(end);
+  const prows=[
+    ['MRR', p.mrr, v=>fmt.usdk(v)],
+    ['Recurring '+p.unit, p.recurring, fmt.n],
+    ['Project '+p.unit, p.project, fmt.n],
+    ['Utilization', p.utilization, fmt.pct],
+    ['Revenue / mo', p.revenue, v=>fmt.usdk(v)]
+  ];
+  el('pgrid').innerHTML=
+    `<tr><th>Metric</th>${idx.map(i=>`<th>M${p.months[i]}</th>`).join('')}</tr>`+
+    prows.map(([lab,arr,f])=>`<tr><td>${lab}</td>${idx.map(i=>`<td>${f(arr[i])}</td>`).join('')}</tr>`).join('');
 }
 
 function render(){
@@ -196,8 +310,13 @@ function render(){
   renderTabs();
   el('month').innerHTML = MONTHS.map((m,i)=>`<option value="${i}" ${i===store.month?'selected':''}>${m}</option>`).join('');
   el('month').onchange = e=>{ store.month=+e.target.value; saveState(); paint(M, L); };
-  el('reset').onclick = ()=>{ store.levers[store.mode] = Object.fromEntries(M.fields.map(f=>[f.key,f.def])); saveState(); render(); };
+  el('reset').onclick = ()=>{
+    store.levers[store.mode] = Object.fromEntries(M.fields.map(f=>[f.key,f.def]));
+    if(M.projFields) store.plevers[store.mode] = Object.fromEntries(M.projFields.map(f=>[f.key,f.def]));
+    saveState(); render();
+  };
   renderInputs(M, L);
+  if(M.projFields) renderPInputs(M);
   paint(M, L);
 }
 render();
