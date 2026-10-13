@@ -79,10 +79,39 @@
   .chip{display:inline-block;padding:2px 9px;border-radius:10px;font:700 10px "JetBrains Mono",monospace;background:var(--warn-bg);color:var(--warn);text-transform:uppercase;letter-spacing:.04em}
   .foot{margin-top:24px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
   .foot button{font:inherit;padding:6px 12px;border:1px solid var(--line);border-radius:7px;background:var(--paper);cursor:pointer}
+  /* assumptions / inputs zone — made obvious */
+  .assum{background:#fffdf5;border:1px solid #ecdca8;border-radius:11px;padding:14px 16px;margin-bottom:20px}
+  .assum-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .assum-h .t{font:700 11px "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#9a7b24}
+  .assum-h .hint{font-size:12px;color:var(--muted)}
+  .assum-h .link{margin-left:auto;font:600 12px Inter,sans-serif;color:var(--accent);text-decoration:none;border:1px solid #ecdca8;background:#fff;padding:5px 11px;border-radius:7px;white-space:nowrap}
+  .assum-h .link:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .assum .inputs{margin-bottom:0}
+  .inp{background:var(--paper);border:1px solid #e4dcc2}
+  .inp input{border-bottom:1.5px solid var(--accent)}
+  /* guide / help */
+  .guide{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:22px 24px;margin:16px 0 8px}
+  .guide h2{font:600 20px Oswald,sans-serif;text-transform:uppercase;letter-spacing:.02em;margin-bottom:4px}
+  .guide .intro{color:var(--muted);font-size:13.5px;margin-bottom:16px;max-width:740px}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:20px}
+  .step{display:flex;gap:11px;align-items:flex-start}
+  .step .num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font:700 13px Oswald,sans-serif;display:flex;align-items:center;justify-content:center}
+  .step .tx{font-size:13px;color:var(--ink)} .step .tx b{display:block;margin-bottom:1px}
+  .walk{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+  .wcard{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:9px;padding:12px 14px;background:var(--soft)}
+  .wcard .wt{font:700 12px Inter,sans-serif;color:var(--ink);margin-bottom:3px}
+  .wcard .wd{font-size:12.5px;color:var(--muted);line-height:1.5}
+  .guide-sub{font:700 10px "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:4px 0 10px}
+  /* connect buttons in integrations */
+  .conn{font:600 11px Inter,sans-serif;padding:5px 12px;border-radius:7px;border:1px solid var(--accent);background:#fff;color:var(--accent);cursor:pointer;white-space:nowrap}
+  .conn.on{background:var(--good);border-color:var(--good);color:#fff}
+  .chip.on{background:var(--good-bg);color:var(--good)}
+  .srcbanner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#eef4fb;border:1px solid #cfe0f0;border-radius:10px;padding:11px 15px;margin-bottom:18px;font-size:13px;color:var(--ink)}
+  .srcbanner b{color:var(--cap)} .srcbanner .go{margin-left:auto;font:600 12px Inter;color:#fff;background:var(--cap);border:none;padding:6px 13px;border-radius:7px;cursor:pointer;text-decoration:none}
   .print-head{display:none}
   @media print{
     body{background:#fff}
-    .head .toolbar, .tabs, .subnav, .foot button{display:none}
+    .head .toolbar, .tabs, .subnav, .foot button, .guide, .srcbanner, .assum-h .link, .conn{display:none}
     .head{background:#fff;color:#000;border-bottom:2px solid var(--accent)}
     .head h1{color:#000} .head .sub{color:#555}
     .print-head{display:block;padding:0 26px;margin-top:6px;font:700 13px Inter,sans-serif;color:var(--muted)}
@@ -98,6 +127,7 @@
 <div class="head">
   <div><h1>Capacity Atlas</h1><div class="sub">CFO reporting · Product · Service · Nonprofit</div></div>
   <div class="toolbar">
+    <button id="btn-help">? How to use</button>
     <button id="btn-print">⤓ Print / PDF</button>
     <button id="btn-csv">⤓ Export CSV</button>
   </div>
@@ -105,6 +135,7 @@
 <div class="tabs" id="tabs"></div>
 <div class="print-head" id="printhead"></div>
 <div class="subnav">
+  <a href="#sec-guide">Start Here</a>
   <a href="#sec-summary">Executive Summary</a>
   <a href="#sec-cash">13-Week Cash Flow</a>
   <a href="#sec-forecast">Financial Forecast</a>
@@ -114,8 +145,28 @@
 <main>
   <div class="lens" id="lens"></div>
 
+  <div class="guide" id="sec-guide">
+    <h2>How to use this report</h2>
+    <p class="intro">Capacity Atlas tells any business — product, service, or nonprofit — when to <b>sell more, hold, or add capacity</b>, and what it means for cash and profit. Four steps:</p>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><div class="tx"><b>Pick your business type</b>Use the tabs up top — Product, Service, or Nonprofit. Each reads capacity its own way.</div></div>
+      <div class="step"><div class="num">2</div><div class="tx"><b>Enter or connect your data</b>Type into the <b>yellow Assumptions panels</b> in each section — or connect a source in Data &amp; Integrations to sync it automatically.</div></div>
+      <div class="step"><div class="num">3</div><div class="tx"><b>Read top to bottom</b>Start with the Executive Summary, then cash flow, then the forecast. Each section says what it tells you.</div></div>
+      <div class="step"><div class="num">4</div><div class="tx"><b>Export</b>Use <b>Print / PDF</b> for a board-ready report or <b>Export CSV</b> for the raw data.</div></div>
+    </div>
+    <div class="guide-sub">What each section tells you</div>
+    <div class="walk">
+      <div class="wcard"><div class="wt">01 · Executive Summary</div><div class="wd">The headline. Are you over or under capacity, your recurring revenue and margin, your cash low point, and when you'll need to hire. Read this first.</div></div>
+      <div class="wcard"><div class="wt">02 · 13-Week Cash Flow</div><div class="wd">"Will we make payroll?" Cash in vs. out every week and your running balance. Watch the <b>trough</b> — the lowest the balance gets.</div></div>
+      <div class="wcard"><div class="wt">03 · Financial Forecast</div><div class="wd">Where the P&amp;L heads over 12 months as recurring revenue compounds — revenue, costs, and the bottom line.</div></div>
+      <div class="wcard"><div class="wt">04 · Capacity &amp; Demand</div><div class="wd">The operating detail behind the verdict: capacity vs. booked + likely work each month, with the sell/hold/hire call.</div></div>
+      <div class="wcard"><div class="wt">05 · Data &amp; Integrations</div><div class="wd">Where the numbers come from. Today it's demo data — connect your systems here to go live.</div></div>
+    </div>
+  </div>
+
   <section class="section" id="sec-summary">
     <div class="sec-h"><span class="n">01</span><h2>Executive Summary</h2></div>
+    <div class="srcbanner" id="srcbanner"></div>
     <div class="verdict" id="ex-verdict"><div><h3>—</h3><p></p></div></div>
     <div class="cards" id="ex-cards"></div>
     <div class="revsplit" id="revsplit" hidden></div>
@@ -125,8 +176,10 @@
   <section class="section" id="sec-cash">
     <div class="sec-h"><span class="n">02</span><h2>13-Week Cash Flow</h2></div>
     <p class="sec-sub">The CFO's rolling quarter: cash in, cash out, and the running balance week by week — payroll runs bi-weekly, overhead posts monthly, so the balance sawtooths. Watch the trough.</p>
-    <div class="asl">Cash assumptions</div>
-    <div class="inputs" id="cash-inputs"></div>
+    <div class="assum">
+      <div class="assum-h"><span class="t">✎ Cash assumptions</span><span class="hint">Type any value to change it — or connect a source to sync.</span><a class="link" href="#sec-integrations">⚡ Connect a source</a></div>
+      <div class="inputs" id="cash-inputs"></div>
+    </div>
     <div class="cards" id="cash-cards"></div>
     <div class="chart"><div id="cash-svg"></div><div class="legend" id="cash-legend"></div></div>
     <div class="tablewrap"><table id="cash-grid"></table></div>
@@ -135,8 +188,10 @@
   <section class="section" id="sec-forecast">
     <div class="sec-h"><span class="n">03</span><h2>Financial Forecast</h2></div>
     <p class="sec-sub">12-month P&amp;L on the growth trajectory — recurring and project revenue, costs, and the bottom line as the recurring book compounds.</p>
-    <div class="asl">Growth assumptions</div>
-    <div class="inputs" id="fc-inputs"></div>
+    <div class="assum">
+      <div class="assum-h"><span class="t">✎ Growth assumptions</span><span class="hint">Type any value to change it — or connect a source to sync.</span><a class="link" href="#sec-integrations">⚡ Connect a source</a></div>
+      <div class="inputs" id="fc-inputs"></div>
+    </div>
     <div class="cards" id="fc-cards"></div>
     <div class="chart"><div id="fc-svg"></div><div class="legend" id="fc-legend"></div></div>
     <div class="tablewrap"><table id="fc-grid"></table></div>
@@ -145,8 +200,10 @@
   <section class="section" id="sec-capacity">
     <div class="sec-h"><span class="n">04</span><h2>Capacity &amp; Demand</h2></div>
     <p class="sec-sub">The operating detail behind the verdict — capacity vs. committed and likely demand across the year.</p>
-    <div class="asl">Operating assumptions</div>
-    <div class="inputs" id="cap-inputs"></div>
+    <div class="assum">
+      <div class="assum-h"><span class="t">✎ Operating assumptions</span><span class="hint">Type any value to change it — or connect a source to sync.</span><a class="link" href="#sec-integrations">⚡ Connect a source</a></div>
+      <div class="inputs" id="cap-inputs"></div>
+    </div>
     <div class="verdict" id="cap-verdict"><div><h3>—</h3><p></p></div>
       <div class="mo"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px">Month</label><select id="month"></select></div>
     </div>
@@ -180,6 +237,7 @@ const store=load();
 if(!store.mode) store.mode='product';
 if(!store.levers) store.levers={};
 if(!store.plevers) store.plevers={};
+if(!store.connected) store.connected={};
 if(store.month===undefined) store.month=3;
 
 const mainFields=M=>[...M.fields,...(M.cashFields||[])];
@@ -355,9 +413,25 @@ function paintCapacity(M){
     `<tr><td>Action</td>${c.action.map((a,i)=>`<td${i===m?' class="sel"':''}><span class="pill ${a}">${(v.pill&&v.pill[a])||v[a]}</span></td>`).join('')}</tr>`;
 }
 
+function connectedFor(mode){ if(!store.connected[mode]) store.connected[mode]={}; return store.connected[mode]; }
+function renderSrcBanner(M){
+  const con=connectedFor(M.key), total=M.sources.length, n=M.sources.filter(s=>con[s.domain]).length;
+  el('srcbanner').innerHTML=`<span style="font-size:15px">${n>0?'🟢':'🟡'}</span>`+
+    `<span><b>Data source:</b> ${n===0?'Demo data — not yet connected to your systems.':(n+' of '+total+' systems connected (demo). ')}`+
+    `${n<total?' Connect your systems to replace the demo numbers with live data.':'All sources connected (demo).'}</span>`+
+    `<a class="go" href="#sec-integrations">${n<total?'Connect data →':'Manage sources'}</a>`;
+}
 function renderIntegrations(M){
-  el('integ-grid').innerHTML=`<tr><th>Data domain</th><th>Feeds</th><th>Suggested integration</th><th>Status</th></tr>`+
-    M.sources.map(s=>`<tr><td>${s.domain}</td><td style="text-align:left;font-family:Inter,sans-serif;font-weight:400;color:var(--muted);white-space:normal">${s.feeds}</td><td style="text-align:left;font-family:Inter,sans-serif;font-weight:400;color:var(--ink);white-space:normal">${s.tools}</td><td><span class="chip">Demo</span></td></tr>`).join('');
+  const con=connectedFor(M.key);
+  el('integ-grid').innerHTML=`<tr><th>Data domain</th><th>Feeds</th><th>Suggested integration</th><th>Status</th><th>Action</th></tr>`+
+    M.sources.map(s=>{ const on=!!con[s.domain];
+      return `<tr><td>${s.domain}</td>`+
+        `<td style="text-align:left;font-family:Inter,sans-serif;font-weight:400;color:var(--muted);white-space:normal">${s.feeds}</td>`+
+        `<td style="text-align:left;font-family:Inter,sans-serif;font-weight:400;color:var(--ink);white-space:normal">${s.tools}</td>`+
+        `<td><span class="chip ${on?'on':''}">${on?'Connected · demo':'Demo'}</span></td>`+
+        `<td><button class="conn ${on?'on':''}" data-d="${s.domain}">${on?'✓ Connected':'Connect'}</button></td></tr>`;
+    }).join('');
+  el('integ-grid').querySelectorAll('.conn').forEach(b=> b.onclick=()=>{ con[b.dataset.d]=!con[b.dataset.d]; save(); renderIntegrations(M); renderSrcBanner(M); });
 }
 
 function paintAll(M){
@@ -398,7 +472,9 @@ function render(){
   renderFields('cash-inputs',M.cashFields||[],L,M);
   renderFields('fc-inputs',M.projFields||[],PL,M);
   renderIntegrations(M);
-  el('reset').onclick=()=>{ delete store.levers[M.key]; delete store.plevers[M.key]; save(); render(); };
+  renderSrcBanner(M);
+  el('reset').onclick=()=>{ delete store.levers[M.key]; delete store.plevers[M.key]; delete store.connected[M.key]; save(); render(); };
+  el('btn-help').onclick=()=>el('sec-guide').scrollIntoView({behavior:'smooth'});
   el('btn-print').onclick=()=>window.print();
   el('btn-csv').onclick=()=>exportCSV(M);
   el('footnote').textContent='Demo data — replace with your own or connect a source (see Data & Integrations). Saved locally in your browser.';
