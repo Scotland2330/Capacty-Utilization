@@ -27,7 +27,7 @@ const fmt = {
   n: v => Math.round(v).toLocaleString(),
   n1: v => v.toFixed(1),
   usd: v => '$' + Math.round(v).toLocaleString(),
-  usdk: v => '$' + Math.round(v / 1000) + 'k',
+  usdk: v => { const a=Math.abs(v), s=v<0?'-':''; return a>=1e6 ? s+'$'+(a/1e6).toFixed(a>=1e7?0:1)+'M' : s+'$'+Math.round(a/1000)+'k'; },
   pct: v => Math.round(v * 100) + '%'
 };
 
@@ -54,6 +54,7 @@ const PRODUCT = {
     { key: 'winPct',      label: 'Pipeline win rate',   min: 0,  max: 100, step: 5, def: 50,  suffix: '%' },
     { key: 'rate',        label: 'Project rate',        min: 80, max: 300, step: 5, def: 150, prefix: '$', suffix: '/hr' },
     { key: 'cost',        label: 'Loaded cost',         min: 30, max: 150, step: 5, def: 65,  prefix: '$', suffix: '/hr' },
+    { key: 'hrsPerFTE',   label: 'Billable hrs / FTE · mo', min: 80, max: 200, step: 5, def: 150, suffix: '' },
     { key: 'recClients',  label: 'Retainer clients',    min: 0,  max: 40, step: 1,  def: 6,   suffix: '' },
     { key: 'recHrs',      label: 'Hrs / retainer · mo', min: 0,  max: 120, step: 5, def: 40,  suffix: '' },
     { key: 'recFee',      label: 'Retainer fee / mo',   min: 0,  max: 30000, step: 500, def: 6000, prefix: '$' },
@@ -68,7 +69,7 @@ const PRODUCT = {
   compute(L) {
     const recurring = MONTHS.map(() => L.recClients * L.recHrs);
     const projectDemand = this.base.committed.slice();
-    const capacity  = this.base.capacity.map(h => h + L.extraFTE * 150);
+    const capacity  = this.base.capacity.map(h => h + L.extraFTE * (L.hrsPerFTE||150));
     const committed = projectDemand.map((c, i) => c + recurring[i]);        // recurring floor + project
     const likely    = this.base.pipeline.map(h => h * (L.winPct / 100));
     const upper     = committed.map((c, i) => c + likely[i]);
@@ -98,7 +99,7 @@ const PRODUCT = {
     if (c.action[m] === 'over') {
       const over = c.upper[m] - c.capacity[m] * L.upper / 100;
       return { tone: 'bad', headline: 'Hire — you\'re over-committed',
-        detail: `${MONTHS[m]}: recurring + project is ${fmt.pct(u)} of capacity — ~${fmt.n(Math.max(0, over))} hrs (~${(Math.max(0,over)/150).toFixed(1)} FTE) past the ${L.upper}% ceiling. Retainers alone lock ${fmt.pct(c.recurring[m]/c.capacity[m])}.` };
+        detail: `${MONTHS[m]}: recurring + project is ${fmt.pct(u)} of capacity — ~${fmt.n(Math.max(0, over))} hrs (~${(Math.max(0,over)/(L.hrsPerFTE||150)).toFixed(1)} FTE) past the ${L.upper}% ceiling. Retainers alone lock ${fmt.pct(c.recurring[m]/c.capacity[m])}.` };
     }
     if (c.action[m] === 'under') {
       const open = Math.max(0, c.capacity[m] * L.upper / 100 - c.upper[m]);
@@ -151,6 +152,7 @@ const SERVICE = {
   fields: [
     { key: 'workers',    label: 'Case workers',        min: 1,  max: 15, step: 1,  def: 5,   suffix: ' ppl' },
     { key: 'perWorker',  label: 'Cases / worker',      min: 20, max: 80, step: 5,  def: 45,  suffix: '' },
+    { key: 'hrsPerWorker', label: 'Billable hrs / worker · mo', min: 60, max: 200, step: 5, def: 130, suffix: '' },
     { key: 'intakeMult', label: 'Project intake vs plan', min: 50, max: 200, step: 5, def: 100, suffix: '%' },
     { key: 'delay',      label: 'External-delay stretch', min: 80, max: 200, step: 5, def: 100, suffix: '%' },
     { key: 'revPerCaseMo', label: 'Revenue / active case · mo', min: 200, max: 3000, step: 50, def: 650, prefix: '$' },
@@ -305,22 +307,28 @@ const NONPROFIT = {
  * FINANCIAL LAYER — 13-week cash flow, P&L forecast, integration map.
  * Shared builders + per-mode adapters attached below.
  * =========================================================================== */
-function weeklyCashflow(f, weeks){
-  weeks = weeks || 13;
-  const wk = 12/52;
-  const recWeekly = (f.mrr||0)*wk, projWeekly = (f.projMoRev||0)*wk;
-  const cogsWeekly = (f.cogsPct||0)*(f.projMoRev||0)*wk;
-  const inflow=[],outflow=[],net=[],bal=[]; let b=f.startCash||0, trough=Infinity, minWeek=1;
-  for(let w=1;w<=weeks;w++){
-    const inf = recWeekly + projWeekly;
-    let out = cogsWeekly;
-    if(w%2===0) out += (f.payrollMo||0)/2;   // payroll runs bi-weekly
-    if(w%4===0) out += (f.overheadMo||0);     // overhead posts monthly
-    const n = inf-out; b += n;
-    inflow.push(inf); outflow.push(out); net.push(n); bal.push(b);
-    if(b<trough){ trough=b; minWeek=w; }
+function cashflowPeriods(f, period, n){
+  period = period || 'week';
+  n = n || (period==='month' ? 12 : 52);
+  const inflow=[],outflow=[],net=[],bal=[]; let b=f.startCash||0, trough=Infinity, minIdx=1;
+  if(period==='month'){
+    const inf=(f.mrr||0)+(f.projMoRev||0);
+    for(let m=1;m<=n;m++){
+      const out=(f.cogsPct||0)*(f.projMoRev||0)+(f.payrollMo||0)+(f.overheadMo||0);
+      const nt=inf-out; b+=nt; inflow.push(inf); outflow.push(out); net.push(nt); bal.push(b);
+      if(b<trough){ trough=b; minIdx=m; }
+    }
+  } else {
+    const wk=12/52, recW=(f.mrr||0)*wk, projW=(f.projMoRev||0)*wk, cogsW=(f.cogsPct||0)*(f.projMoRev||0)*wk;
+    for(let w=1;w<=n;w++){
+      const inf=recW+projW; let out=cogsW;
+      if(w%2===0) out+=(f.payrollMo||0)/2;   // payroll runs bi-weekly
+      if(w%4===0) out+=(f.overheadMo||0);     // overhead posts monthly
+      const nt=inf-out; b+=nt; inflow.push(inf); outflow.push(out); net.push(nt); bal.push(b);
+      if(b<trough){ trough=b; minIdx=w; }
+    }
   }
-  return { weeks, inflow, outflow, net, bal, start:f.startCash||0, end:b, trough, minWeek };
+  return { period, n, inflow, outflow, net, bal, start:f.startCash||0, end:b, trough, minWeek:minIdx };
 }
 function monthlyForecast(proj, f, months){
   months = months || 12;
@@ -346,7 +354,7 @@ Object.assign(PRODUCT, {
   finLabels:{revenue:'Revenue', cost:'COGS (materials/subs)', payroll:'Payroll', overhead:'Overhead', bottom:'EBITDA'},
   cashFields: CASH_PS.map(x=> x.key==='payrollMo'?{...x,def:86000}: x.key==='overheadMo'?{...x,def:20000}: x.key==='cogsPct'?{...x,def:12}:{...x}),
   financials(L){ const c=this.compute(L); return {mrr:c.rev.mrr, projMoRev:c.rev.projYr/12, startCash:L.startCash, payrollMo:L.payrollMo, overheadMo:L.overheadMo, cogsPct:(L.cogsPct||0)/100}; },
-  cashflow(L,w){ return weeklyCashflow(this.financials(L), w); },
+  cashflow(L,period,n){ return cashflowPeriods(this.financials(L), period, n); },
   forecast(L,m){ return monthlyForecast(this.project(L, m||12), this.financials(L), m||12); },
   sources:[
     {domain:'Team & capacity', feeds:'Billable hours, PTO, headcount', tools:'HRIS / PSA — Gusto, BambooHR, Float, Harvest'},
@@ -360,7 +368,7 @@ Object.assign(SERVICE, {
   finLabels:{revenue:'Revenue', cost:'COGS (subs/filing)', payroll:'Payroll', overhead:'Overhead', bottom:'EBITDA'},
   cashFields: CASH_PS.map(x=> x.key==='payrollMo'?{...x,def:68000}: x.key==='overheadMo'?{...x,def:24000}: x.key==='cogsPct'?{...x,def:5}: x.key==='startCash'?{...x,def:140000}:{...x}),
   financials(L){ const c=this.compute(L); return {mrr:c.rev.mrr, projMoRev:c.rev.projYr/12, startCash:L.startCash, payrollMo:L.payrollMo, overheadMo:L.overheadMo, cogsPct:(L.cogsPct||0)/100}; },
-  cashflow(L,w){ return weeklyCashflow(this.financials(L), w); },
+  cashflow(L,period,n){ return cashflowPeriods(this.financials(L), period, n); },
   forecast(L,m){ return monthlyForecast(this.project(L, m||12), this.financials(L), m||12); },
   sources:[
     {domain:'Team & caseload', feeds:'Case workers, capacity, PTO', tools:'HRIS / PSA — Gusto, Rippling, Harvest'},
@@ -394,7 +402,7 @@ Object.assign(NONPROFIT, {
     return o;
   },
   financials(L){ const c=this.compute(L); return {mrr:L.budget, projMoRev:0, startCash:L.reserves, payrollMo:avg(c.committed)*L.costPer, overheadMo:L.overheadMo, cogsPct:0}; },
-  cashflow(L,w){ return weeklyCashflow(this.financials(L), w); },
+  cashflow(L,period,n){ return cashflowPeriods(this.financials(L), period, n); },
   forecast(L,m){ m=m||12; const p=this.project(L,m); const o={months:[],recRev:[],projRev:[],totalRev:[],cost:[],payroll:[],overhead:[],ebitda:[],margin:[]};
     for(let i=0;i<m;i++){ const funding=p.revenue[i], prog=p.recurring[i]*L.costPer, ov=L.overheadMo||0, surplus=funding-prog-ov;
       o.months.push(i+1); o.recRev.push(funding); o.projRev.push(0); o.totalRev.push(funding); o.cost.push(prog); o.payroll.push(0); o.overhead.push(ov); o.ebitda.push(surplus); o.margin.push(funding>0?surplus/funding:0);
@@ -405,6 +413,39 @@ Object.assign(NONPROFIT, {
     {domain:'Funding', feeds:'Grants, donations, pledges', tools:'Donor CRM / grants — Bloomerang, Kindful, Instrumentl'},
     {domain:'Cash & reserves', feeds:'Budget, spend, reserves', tools:'Accounting — QuickBooks NP, Sage Intacct'}
   ]
+});
+
+/* ---- capacity readouts (hours + people) and execution org roles ---- */
+Object.assign(PRODUCT, {
+  capReadout(L){ const hrs=avg(this.compute(L).capacity), fte=hrs/(L.hrsPerFTE||150);
+    return [{label:'Capacity',value:fmt.n(hrs)+' hrs/mo'},{label:'People',value:fte.toFixed(1)+' FTE'},{label:'Recurring floor',value:fmt.n(L.recClients*L.recHrs)+' hrs'}]; },
+  roles(L){ const fte=Math.max(1,Math.round(avg(this.compute(L).capacity)/(L.hrsPerFTE||150))), techs=Math.max(1,fte-1);
+    return { tiers:[
+      {name:'Leadership', roles:[{title:'CEO / Owner', person:'Owner', fte:1, type:'Split', note:'also leads sales'}]},
+      {name:'Sales & Growth', roles:[{title:'Sales Lead', person:'Owner', fte:0.5, type:'Split', note:'shared with CEO'},{title:'Account Executive', person:'Hire', fte:1, type:'Direct', note:'new role'}]},
+      {name:'Delivery / Production', roles:[{title:'Shop / Production Lead', person:'', fte:1, type:'Direct'},{title:'Fabricators / Technicians', person:'', fte:techs, type:'Direct', note:'capacity-bearing'}]},
+      {name:'Operations & Finance', roles:[{title:'Operations / Admin', person:'', fte:1, type:'Direct'},{title:'Fractional CFO', person:'Scope CFO', fte:0.25, type:'Fractional', note:'contract'}]}
+    ]}; }
+});
+Object.assign(SERVICE, {
+  capReadout(L){ return [{label:'Capacity',value:fmt.n(L.workers*L.perWorker)+' case slots'},{label:'People',value:L.workers+' case workers'},{label:'Hours',value:fmt.n(L.workers*(L.hrsPerWorker||130))+' hrs/mo'}]; },
+  roles(L){ const w=Math.max(1,Math.round(L.workers));
+    return { tiers:[
+      {name:'Leadership', roles:[{title:'Managing Partner', person:'', fte:1, type:'Split', note:'leadership + delivery'}]},
+      {name:'Sales & Growth', roles:[{title:'Business Development', person:'', fte:1, type:'Direct'},{title:'Intake Coordinator', person:'', fte:0.5, type:'Split', note:'shared with ops'}]},
+      {name:'Delivery / Casework', roles:[{title:'Case Director', person:'', fte:1, type:'Direct'},{title:'Case Workers', person:'', fte:w, type:'Direct', note:'capacity-bearing'}]},
+      {name:'Operations & Finance', roles:[{title:'Client Ops / Admin', person:'', fte:1, type:'Direct'},{title:'Fractional CFO', person:'Scope CFO', fte:0.2, type:'Fractional', note:'contract'}]}
+    ]}; }
+});
+Object.assign(NONPROFIT, {
+  capReadout(L){ const c=this.compute(L); return [{label:'Delivery capacity',value:fmt.n(c._deliverCap)+' served/mo'},{label:'People',value:(L.staff+L.volunteers)+' FTE-eq'},{label:'Team',value:L.staff+' staff · '+L.volunteers+' vol'}]; },
+  roles(L){ const staff=Math.max(1,Math.round(L.staff)), vol=Math.round(L.volunteers);
+    return { tiers:[
+      {name:'Leadership', roles:[{title:'Executive Director', person:'', fte:1, type:'Split', note:'leadership + fundraising'}]},
+      {name:'Fundraising & Dev', roles:[{title:'Development Lead', person:'', fte:1, type:'Direct', note:'grants + donors'}]},
+      {name:'Programs / Delivery', roles:[{title:'Program Director', person:'', fte:1, type:'Direct'},{title:'Program Staff', person:'', fte:staff, type:'Direct', note:'capacity-bearing'},{title:'Volunteers', person:'', fte:vol, type:'Split', note:'FTE-equivalent'}]},
+      {name:'Operations & Finance', roles:[{title:'Operations / Admin', person:'', fte:0.5, type:'Split'},{title:'Finance', person:'Scope CFO', fte:0.2, type:'Fractional', note:'contract'}]}
+    ]}; }
 });
 
 const MODES = { product: PRODUCT, service: SERVICE, nonprofit: NONPROFIT };
