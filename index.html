@@ -10,314 +10,399 @@
     --good:#2f7d5b; --warn:#b9831a; --bad:#b3402e;
     --good-bg:#e4f0ea; --warn-bg:#fbf1da; --bad-bg:#f7e2dc;
     --cap:#24384d; --cap-fill:#c3cedb; --dem:#2f6f4e; --risk:#b5432e; --rec:#5f8aa6; --rec-fill:#bcd0dd;
-    --accent:#e08a1e; /* set per mode */
+    --accent:#e08a1e;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--ink);font:14px/1.55 Inter,-apple-system,system-ui,Segoe UI,sans-serif}
-  .head{background:#0d1722;color:#e7ecf2;padding:16px 26px}
-  .head h1{font:600 21px Oswald,Impact,sans-serif;letter-spacing:.05em;text-transform:uppercase}
-  .head .sub{font:11px "JetBrains Mono",ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:#9fb0c2;margin-top:4px}
+  .head{background:#0d1722;color:#e7ecf2;padding:15px 26px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .head h1{font:600 20px Oswald,Impact,sans-serif;letter-spacing:.05em;text-transform:uppercase}
+  .head .sub{font:11px "JetBrains Mono",ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:#9fb0c2;margin-top:3px}
+  .toolbar{margin-left:auto;display:flex;gap:8px}
+  .toolbar button{font:600 12px Inter,sans-serif;padding:8px 14px;border:1px solid #2b3a4a;border-radius:7px;background:#17222f;color:#cdd8e4;cursor:pointer}
+  .toolbar button:hover{border-color:var(--accent);color:#fff}
   .tabs{display:flex;gap:8px;padding:14px 26px 0;background:#0d1722;flex-wrap:wrap}
   .tab{font:600 13px Inter,sans-serif;padding:9px 18px;border:none;border-radius:9px 9px 0 0;background:#1b2836;color:#aebccb;cursor:pointer;border-bottom:3px solid transparent}
   .tab.active{background:var(--bg);color:var(--ink);border-bottom-color:var(--accent)}
-  main{max-width:1140px;margin:0 auto;padding:22px 26px 60px}
+  .subnav{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:4px;padding:10px 26px;flex-wrap:wrap;box-shadow:0 1px 6px rgba(13,23,34,.04)}
+  .subnav a{font:600 12px Inter,sans-serif;color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:7px}
+  .subnav a:hover{background:var(--paper);color:var(--ink)}
+  main{max-width:1160px;margin:0 auto;padding:12px 26px 70px}
+  .section{padding:26px 0;border-bottom:1px solid var(--line)}
+  .section:last-child{border-bottom:none}
+  .sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+  .sec-h h2{font:600 22px Oswald,sans-serif;text-transform:uppercase;letter-spacing:.02em;color:var(--ink)}
+  .sec-h .n{font:700 11px "JetBrains Mono",monospace;color:var(--accent);letter-spacing:.1em}
+  .sec-sub{color:var(--muted);font-size:13px;margin-bottom:16px;max-width:700px}
   .lens{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:9px;padding:13px 16px;color:var(--muted);font-size:13px;margin-bottom:18px}
   .lens b{color:var(--ink)}
-  .section-l{font:700 10px "JetBrains Mono",monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 9px 2px}
-  .inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:22px}
-  .inp{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
-  .inp label{display:block;font:600 11px Inter,sans-serif;color:var(--muted);margin-bottom:5px}
+  .asl{font:700 10px "JetBrains Mono",monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 9px 2px}
+  .inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px}
+  .inp{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:9px 12px}
+  .inp label{display:block;font:600 11px Inter,sans-serif;color:var(--muted);margin-bottom:4px}
   .inp .row{display:flex;align-items:baseline;gap:3px}
   .inp .pre{color:var(--muted);font-size:13px} .inp .suf{color:var(--muted);font-size:12px}
-  .inp input{width:100%;border:none;border-bottom:1.5px solid var(--line);font:600 17px "JetBrains Mono",monospace;color:var(--ink);padding:2px 0;background:transparent;outline:none}
+  .inp input{width:100%;border:none;border-bottom:1.5px solid var(--line);font:600 16px "JetBrains Mono",monospace;color:var(--ink);padding:2px 0;background:transparent;outline:none}
   .inp input:focus{border-bottom-color:var(--accent)}
   .verdict{border:2px solid;border-radius:13px;padding:18px 22px;margin-bottom:20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
   .verdict.good{background:var(--good-bg);border-color:var(--good)} .verdict.warn{background:var(--warn-bg);border-color:var(--warn)} .verdict.bad{background:var(--bad-bg);border-color:var(--bad)}
-  .verdict h2{font:600 23px Oswald,sans-serif;text-transform:uppercase;letter-spacing:.02em}
-  .verdict.good h2{color:var(--good)} .verdict.warn h2{color:var(--warn)} .verdict.bad h2{color:var(--bad)}
-  .verdict p{color:var(--muted);font-size:13.5px;margin-top:4px;max-width:640px}
-  .verdict .mo{margin-left:auto} .verdict select{font:inherit;padding:7px 11px;border:1px solid var(--line);border-radius:7px;background:var(--paper)}
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+  .verdict h3{font:600 23px Oswald,sans-serif;text-transform:uppercase;letter-spacing:.02em}
+  .verdict.good h3{color:var(--good)} .verdict.warn h3{color:var(--warn)} .verdict.bad h3{color:var(--bad)}
+  .verdict p{color:var(--muted);font-size:13.5px;margin-top:4px;max-width:680px}
+  .verdict .mo{margin-left:auto}
+  select{font:inherit;padding:7px 11px;border:1px solid var(--line);border-radius:7px;background:var(--paper)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
   .card{background:var(--paper);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:9px;padding:14px 16px}
   .card .l{font:700 10px "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-  .card .v{font:600 27px Oswald,sans-serif;margin:5px 0 3px} .card .s{font-size:11.5px;color:var(--muted)}
+  .card .v{font:600 25px Oswald,sans-serif;margin:5px 0 3px} .card .s{font-size:11.5px;color:var(--muted)}
   .card.good .v{color:var(--good)} .card.bad .v{color:var(--bad)} .card.warn .v{color:var(--warn)} .card.neutral .v{color:var(--cap)}
-  .chart{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:16px 18px;margin-bottom:22px}
-  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:6px}
+  .narr{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:16px 18px;font-size:14px;line-height:1.65;color:var(--ink);margin-bottom:4px}
+  .narr b{color:var(--ink)} .narr .hl{font-weight:700}
+  .chart{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:16px 18px;margin-bottom:18px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:6px}
   .legend i{display:inline-block;width:16px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
-  table{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:11px;overflow:hidden;font-size:12.5px}
-  th{background:#1b2b3b;color:#fff;font:700 10px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;padding:9px 7px;text-align:right}
-  th:first-child{text-align:left;padding-left:14px}
-  td{padding:8px 7px;text-align:right;font-family:"JetBrains Mono",monospace;border-bottom:1px solid #eef1f5}
-  td:first-child{text-align:left;padding-left:14px;font-family:Inter,sans-serif;font-weight:600;color:var(--muted)}
-  tr.sel td{background:#fffdf3}
-  .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-weight:700;font-size:10.5px;white-space:nowrap}
-  .pill.under{background:var(--good-bg);color:var(--good)} .pill.match{background:var(--warn-bg);color:var(--warn)} .pill.over{background:var(--bad-bg);color:var(--bad)}
-  .foot{margin-top:26px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
-  .foot button{font:inherit;padding:6px 12px;border:1px solid var(--line);border-radius:7px;background:var(--paper);cursor:pointer}
-  .tablewrap{overflow-x:auto}
-  .revsplit{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:14px 18px;margin-bottom:22px}
+  .revsplit{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:14px 18px;margin-bottom:18px}
   .rs-bar{height:14px;border-radius:7px;overflow:hidden;background:var(--dem);display:flex}
   .rs-rec{height:100%;background:var(--rec)}
   .rs-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px;color:var(--muted);gap:12px;flex-wrap:wrap}
-  #projwrap{border-top:2px solid var(--line);padding-top:20px;margin-top:6px}
-  .proj-head{margin-bottom:12px}
-  .proj-sub{color:var(--muted);font-size:13px;margin-top:4px;max-width:660px}
+  .tablewrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:11px;overflow:hidden;font-size:12.5px}
+  th{background:#1b2b3b;color:#fff;font:700 10px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;padding:9px 7px;text-align:right}
+  th:first-child{text-align:left;padding-left:14px}
+  td{padding:8px 7px;text-align:right;font-family:"JetBrains Mono",monospace;border-bottom:1px solid #eef1f5;white-space:nowrap}
+  td:first-child{text-align:left;padding-left:14px;font-family:Inter,sans-serif;font-weight:600;color:var(--muted)}
+  tr.em td{background:var(--soft);font-weight:700;color:var(--ink)}
+  tr.sel td{background:#fffdf3}
+  td.neg{color:var(--bad)}
+  .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-weight:700;font-size:10.5px;white-space:nowrap}
+  .pill.under{background:var(--good-bg);color:var(--good)} .pill.match{background:var(--warn-bg);color:var(--warn)} .pill.over{background:var(--bad-bg);color:var(--bad)}
+  .integ td:first-child{color:var(--ink)}
+  .chip{display:inline-block;padding:2px 9px;border-radius:10px;font:700 10px "JetBrains Mono",monospace;background:var(--warn-bg);color:var(--warn);text-transform:uppercase;letter-spacing:.04em}
+  .foot{margin-top:24px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  .foot button{font:inherit;padding:6px 12px;border:1px solid var(--line);border-radius:7px;background:var(--paper);cursor:pointer}
+  .print-head{display:none}
+  @media print{
+    body{background:#fff}
+    .head .toolbar, .tabs, .subnav, .foot button{display:none}
+    .head{background:#fff;color:#000;border-bottom:2px solid var(--accent)}
+    .head h1{color:#000} .head .sub{color:#555}
+    .print-head{display:block;padding:0 26px;margin-top:6px;font:700 13px Inter,sans-serif;color:var(--muted)}
+    main{max-width:none;padding:0 26px}
+    .section{page-break-inside:avoid}
+    .section + .section{page-break-before:always}
+    .chart,.card,.narr,.revsplit,table{box-shadow:none}
+    a[href]:after{content:""}
+  }
 </style>
 </head>
 <body>
 <div class="head">
-  <h1>Capacity Atlas</h1>
-  <div class="sub">One tool · three lenses — Product · Service · Nonprofit</div>
+  <div><h1>Capacity Atlas</h1><div class="sub">CFO reporting · Product · Service · Nonprofit</div></div>
+  <div class="toolbar">
+    <button id="btn-print">⤓ Print / PDF</button>
+    <button id="btn-csv">⤓ Export CSV</button>
+  </div>
 </div>
 <div class="tabs" id="tabs"></div>
+<div class="print-head" id="printhead"></div>
+<div class="subnav">
+  <a href="#sec-summary">Executive Summary</a>
+  <a href="#sec-cash">13-Week Cash Flow</a>
+  <a href="#sec-forecast">Financial Forecast</a>
+  <a href="#sec-capacity">Capacity &amp; Demand</a>
+  <a href="#sec-integrations">Data &amp; Integrations</a>
+</div>
 <main>
   <div class="lens" id="lens"></div>
-  <div class="section-l">Assumptions — edit to your numbers</div>
-  <div class="inputs" id="inputs"></div>
-  <div class="verdict" id="verdict">
-    <div><h2>—</h2><p></p></div>
-    <div class="mo"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px">Month</label><select id="month"></select></div>
-  </div>
-  <div class="cards" id="cards"></div>
-  <div class="revsplit" id="revsplit" hidden></div>
-  <div class="chart"><div id="svg"></div><div class="legend" id="legend"></div></div>
-  <div class="section-l">Capacity vs. demand — 12 months</div>
-  <div class="tablewrap"><table id="grid"></table></div>
 
-  <div id="projwrap" hidden>
-    <div class="proj-head">
-      <div class="section-l" style="margin:0">Projection — next 24 months</div>
-      <p class="proj-sub">Grow your recurring book and project work forward to see MRR, revenue, and the month you cross the hire line.</p>
+  <section class="section" id="sec-summary">
+    <div class="sec-h"><span class="n">01</span><h2>Executive Summary</h2></div>
+    <div class="verdict" id="ex-verdict"><div><h3>—</h3><p></p></div></div>
+    <div class="cards" id="ex-cards"></div>
+    <div class="revsplit" id="revsplit" hidden></div>
+    <div class="narr" id="ex-narr"></div>
+  </section>
+
+  <section class="section" id="sec-cash">
+    <div class="sec-h"><span class="n">02</span><h2>13-Week Cash Flow</h2></div>
+    <p class="sec-sub">The CFO's rolling quarter: cash in, cash out, and the running balance week by week — payroll runs bi-weekly, overhead posts monthly, so the balance sawtooths. Watch the trough.</p>
+    <div class="asl">Cash assumptions</div>
+    <div class="inputs" id="cash-inputs"></div>
+    <div class="cards" id="cash-cards"></div>
+    <div class="chart"><div id="cash-svg"></div><div class="legend" id="cash-legend"></div></div>
+    <div class="tablewrap"><table id="cash-grid"></table></div>
+  </section>
+
+  <section class="section" id="sec-forecast">
+    <div class="sec-h"><span class="n">03</span><h2>Financial Forecast</h2></div>
+    <p class="sec-sub">12-month P&amp;L on the growth trajectory — recurring and project revenue, costs, and the bottom line as the recurring book compounds.</p>
+    <div class="asl">Growth assumptions</div>
+    <div class="inputs" id="fc-inputs"></div>
+    <div class="cards" id="fc-cards"></div>
+    <div class="chart"><div id="fc-svg"></div><div class="legend" id="fc-legend"></div></div>
+    <div class="tablewrap"><table id="fc-grid"></table></div>
+  </section>
+
+  <section class="section" id="sec-capacity">
+    <div class="sec-h"><span class="n">04</span><h2>Capacity &amp; Demand</h2></div>
+    <p class="sec-sub">The operating detail behind the verdict — capacity vs. committed and likely demand across the year.</p>
+    <div class="asl">Operating assumptions</div>
+    <div class="inputs" id="cap-inputs"></div>
+    <div class="verdict" id="cap-verdict"><div><h3>—</h3><p></p></div>
+      <div class="mo"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px">Month</label><select id="month"></select></div>
     </div>
-    <div class="inputs" id="pinputs"></div>
-    <div class="cards" id="pcards"></div>
-    <div class="chart"><div id="psvg"></div><div class="legend" id="plegend"></div></div>
-    <div class="tablewrap"><table id="pgrid"></table></div>
-  </div>
+    <div class="chart"><div id="cap-svg"></div><div class="legend" id="cap-legend"></div></div>
+    <div class="tablewrap"><table id="cap-grid"></table></div>
+  </section>
+
+  <section class="section" id="sec-integrations">
+    <div class="sec-h"><span class="n">05</span><h2>Data &amp; Integrations</h2></div>
+    <p class="sec-sub">Everything above runs on demo data. To make it live, connect each data domain to a source system — this is the integration build list.</p>
+    <div class="tablewrap"><table id="integ-grid" class="integ"></table></div>
+    <p class="sec-sub" style="margin-top:14px">Approach: start with <b>Cash &amp; actuals</b> (accounting + bank) for the 13-week, then <b>Billing</b> for MRR, then <b>CRM</b> for pipeline and <b>HRIS/PSA</b> for capacity. Each syncs on a schedule (nightly) or webhook; manual entry stays available as a fallback.</p>
+  </section>
 
   <div class="foot">
     <span id="footnote"></span>
-    <button id="reset">Reset this mode</button>
+    <button id="reset">Reset this view</button>
   </div>
 </main>
 
 <script src="capacity-atlas.js"></script>
 <script>
-// MODES, MODE_ORDER, MONTHS, fmt are globals provided by capacity-atlas.js
 const ACCENTS = { product:'#e08a1e', service:'#c8961e', nonprofit:'#2f8f6b' };
-const LS = 'capacity-atlas-v1';
-const el = id => document.getElementById(id);
+const LS='capacity-atlas-v2';
+const el=id=>document.getElementById(id);
+const $n=fmt.n,$k=fmt.usdk,$u=fmt.usd,$p=fmt.pct;
 
-function loadState(){ try{ return JSON.parse(localStorage.getItem(LS)) || {}; }catch(e){ return {}; } }
-function saveState(){ try{ localStorage.setItem(LS, JSON.stringify(store)); }catch(e){} }
-const store = loadState();
-if(!store.mode) store.mode = 'product';
-if(!store.levers) store.levers = {};
-if(!store.plevers) store.plevers = {};
-if(store.month===undefined) store.month = 3;
+function load(){ try{return JSON.parse(localStorage.getItem(LS))||{};}catch(e){return {};} }
+function save(){ try{localStorage.setItem(LS,JSON.stringify(store));}catch(e){} }
+const store=load();
+if(!store.mode) store.mode='product';
+if(!store.levers) store.levers={};
+if(!store.plevers) store.plevers={};
+if(store.month===undefined) store.month=3;
 
-function leversFor(mode){
-  const M = MODES[mode];
-  if(!store.levers[mode]) store.levers[mode] = Object.fromEntries(M.fields.map(f=>[f.key,f.def]));
-  // backfill any new fields
-  M.fields.forEach(f=>{ if(store.levers[mode][f.key]===undefined) store.levers[mode][f.key]=f.def; });
+const mainFields=M=>[...M.fields,...(M.cashFields||[])];
+function leversFor(mode){ const M=MODES[mode];
+  if(!store.levers[mode]) store.levers[mode]={};
+  mainFields(M).forEach(f=>{ if(store.levers[mode][f.key]===undefined) store.levers[mode][f.key]=f.def; });
   return store.levers[mode];
 }
-
-function renderTabs(){
-  el('tabs').innerHTML = MODE_ORDER.map(k =>
-    `<button class="tab ${k===store.mode?'active':''}" data-m="${k}">${MODES[k].vocab.title}</button>`).join('');
-  el('tabs').querySelectorAll('.tab').forEach(b=> b.onclick = ()=>{ store.mode=b.dataset.m; saveState(); render(); });
-}
-
-function renderInputs(M, L){
-  el('inputs').innerHTML = M.fields.map(f=>`
-    <div class="inp"><label>${f.label}</label>
-      <div class="row">${f.prefix?`<span class="pre">${f.prefix}</span>`:''}
-        <input type="number" data-k="${f.key}" value="${L[f.key]}" min="${f.min}" max="${f.max}" step="${f.step}">
-        ${f.suffix?`<span class="suf">${f.suffix}</span>`:''}</div></div>`).join('');
-  el('inputs').querySelectorAll('input').forEach(inp=> inp.oninput = ()=>{
-    let v = parseFloat(inp.value); if(!isFinite(v)) return;
-    L[inp.dataset.k] = v; saveState(); paint(M, L);
-  });
-}
-
-function svgChart(M, c){
-  const W=1080,H=300,pl=52,pr=16,pt=14,pb=34, iw=W-pl-pr, ih=H-pt-pb;
-  const maxY = Math.max(...c.capacity, ...c.upper)*1.12 || 1;
-  const x = i => pl + iw*(i/11);
-  const y = v => pt + ih*(1 - v/maxY);
-  const acc = ACCENTS[M.key];
-  const pts = arr => arr.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  // capacity area
-  const capArea = `${pl},${y(0)} ${pts(c.capacity)} ${x(11)},${y(0)}`;
-  // gridlines / y labels
-  let grid='';
-  for(let g=0; g<=4; g++){ const gv=maxY*g/4, gy=y(gv);
-    grid += `<line x1="${pl}" y1="${gy}" x2="${W-pr}" y2="${gy}" stroke="#eef1f5"/>`+
-            `<text x="${pl-8}" y="${gy+3}" text-anchor="end" font-size="10" fill="#8a99a8" font-family="JetBrains Mono,monospace">${fmt.n(gv)}</text>`; }
-  const xl = MONTHS.map((m,i)=>`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-size="10" fill="#8a99a8" font-family="JetBrains Mono,monospace">${m[0]}</text>`).join('');
-  const selX = x(store.month);
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img">
-    ${grid}
-    <line x1="${selX}" y1="${pt}" x2="${selX}" y2="${pt+ih}" stroke="${acc}" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6"/>
-    <polygon points="${capArea}" fill="var(--cap-fill)" opacity="0.45"/>
-    ${c.recurring?`<polygon points="${pl},${y(0)} ${pts(c.recurring)} ${x(11)},${y(0)}" fill="var(--rec-fill)" opacity="0.85"/>`:''}
-    <polyline points="${pts(c.capacity)}" fill="none" stroke="var(--cap)" stroke-width="2"/>
-    ${c.recurring?`<polyline points="${pts(c.recurring)}" fill="none" stroke="var(--rec)" stroke-width="1.5" stroke-dasharray="2 2"/>`:''}
-    <polyline points="${pts(c.committed)}" fill="none" stroke="var(--dem)" stroke-width="2.5"/>
-    <polyline points="${pts(c.upper)}" fill="none" stroke="var(--risk)" stroke-width="2" stroke-dasharray="6 4"/>
-    ${xl}
-  </svg>`;
-}
-
-function paint(M, L){
-  document.documentElement.style.setProperty('--accent', ACCENTS[M.key]);
-  const c = M.compute(L);
-  const v = M.vocab, m = store.month;
-
-  el('lens').innerHTML = `<b>${v.title}.</b> ${v.lens}`;
-
-  // verdict
-  const vd = M.verdict(L, c, m);
-  const ve = el('verdict'); ve.className = 'verdict '+vd.tone;
-  ve.querySelector('h2').textContent = vd.headline;
-  ve.querySelector('p').textContent = vd.detail;
-
-  // cards
-  el('cards').innerHTML = M.metrics(L, c).map(k=>
-    `<div class="card ${k.tone||'neutral'}"><div class="l">${k.label}</div><div class="v">${k.value}</div><div class="s">${k.sub}</div></div>`).join('');
-
-  // chart + legend
-  el('svg').innerHTML = svgChart(M, c);
-  const totalName = M.key==='service'?'Expected total':M.key==='nonprofit'?'People served':'Booked total';
-  const upperName = M.key==='service'?'P90 surge':M.key==='nonprofit'?'Total need':'Booked + pipeline';
-  el('legend').innerHTML =
-    `<span><i style="background:var(--cap)"></i>${v.capacityName}</span>`+
-    (c.recurring?`<span><i style="background:var(--rec)"></i>Recurring floor</span>`:'')+
-    `<span><i style="background:var(--dem)"></i>${totalName}</span>`+
-    `<span><i style="background:var(--risk)"></i>${upperName}</span>`;
-
-  // table
-  const unit = c.unit;
-  const rows = [[v.capacityName+' ('+unit+')', c.capacity, fmt.n]];
-  if(c.recurring){
-    rows.push(['Recurring floor ('+unit+')', c.recurring, fmt.n]);
-    rows.push([v.projNoun+' work ('+unit+')', c.projectDemand, fmt.n]);
-  }
-  rows.push([totalName+' ('+unit+')', c.committed, fmt.n]);
-  rows.push([upperName+' ('+unit+')', c.upper, fmt.n]);
-  rows.push(['Utilization', c.utilization, fmt.pct]);
-  if(c.secondary) rows.push([M.key==='nonprofit'?'Funding coverage':'Surge util', c.secondary, fmt.pct]);
-  el('grid').innerHTML =
-    `<tr><th>Metric</th>${MONTHS.map((x,i)=>`<th${i===m?' style="color:'+ACCENTS[M.key]+'"':''}>${x}</th>`).join('')}</tr>`+
-    rows.map(([lab,arr,f])=>`<tr><td>${lab}</td>${arr.map((x,i)=>`<td${i===m?' class="sel"':''}>${f(x)}</td>`).join('')}</tr>`).join('')+
-    `<tr><td>Action</td>${c.action.map((a,i)=>`<td${i===m?' class="sel"':''}><span class="pill ${a}">${(v.pill&&v.pill[a])||v[a]}</span></td>`).join('')}</tr>`;
-
-  // revenue split (modes with recurring)
-  if(c.rev){
-    el('revsplit').hidden=false;
-    const r=c.rev, pctRec=r.totalYr>0?r.recYr/r.totalYr:0;
-    el('revsplit').innerHTML =
-      `<div class="rs-bar"><div class="rs-rec" style="width:${(pctRec*100).toFixed(0)}%"></div></div>`+
-      `<div class="rs-labels"><span><b style="color:var(--rec)">${fmt.usdk(r.recYr)}/yr</b> recurring (MRR ${fmt.usd(r.mrr)}/mo)</span>`+
-      `<span><b style="color:var(--dem)">${fmt.usdk(r.projYr)}/yr</b> ${v.projNoun.toLowerCase()}</span></div>`;
-  } else el('revsplit').hidden=true;
-
-  // projection
-  if(M.projFields){ el('projwrap').hidden=false; paintProj(M, L); } else el('projwrap').hidden=true;
-
-  el('footnote').textContent = 'Sample data is illustrative — replace with your own. Saved locally in your browser.';
-}
-
-// ---- Projection ----
-function pleversFor(mode){
-  const M=MODES[mode]; if(!M.projFields) return {};
-  if(!store.plevers[mode]) store.plevers[mode]=Object.fromEntries(M.projFields.map(f=>[f.key,f.def]));
+function pleversFor(mode){ const M=MODES[mode]; if(!M.projFields) return {};
+  if(!store.plevers[mode]) store.plevers[mode]={};
   M.projFields.forEach(f=>{ if(store.plevers[mode][f.key]===undefined) store.plevers[mode][f.key]=f.def; });
   return store.plevers[mode];
 }
-function renderPInputs(M){
-  const PL=pleversFor(M.key);
-  el('pinputs').innerHTML = M.projFields.map(f=>`
+const merged=mode=>({...leversFor(mode),...pleversFor(mode)});
+
+function renderFields(containerId, fields, leverObj, onchange){
+  el(containerId).innerHTML = fields.map(f=>`
     <div class="inp"><label>${f.label}</label>
       <div class="row">${f.prefix?`<span class="pre">${f.prefix}</span>`:''}
-        <input type="number" data-k="${f.key}" value="${PL[f.key]}" min="${f.min}" max="${f.max}" step="${f.step}">
+        <input type="number" data-k="${f.key}" value="${leverObj[f.key]}" min="${f.min}" max="${f.max}" step="${f.step}">
         ${f.suffix?`<span class="suf">${f.suffix}</span>`:''}</div></div>`).join('');
-  el('pinputs').querySelectorAll('input').forEach(inp=> inp.oninput=()=>{
+  el(containerId).querySelectorAll('input').forEach(inp=> inp.oninput=()=>{
     let v=parseFloat(inp.value); if(!isFinite(v)) return;
-    PL[inp.dataset.k]=v; saveState(); paintProj(M, leversFor(M.key));
+    leverObj[inp.dataset.k]=v; save(); paintAll(MODES[store.mode]);
   });
 }
-function projSvg(M, p){
-  const W=1080,H=300,pl=52,pr=16,pt=14,pb=34,iw=W-pl-pr,ih=H-pt-pb, H0=p.horizon;
-  const maxY=Math.max(p.cap, ...p.demand)*1.1||1;
-  const x=i=>pl+iw*(i/(H0-1)), y=v=>pt+ih*(1-v/maxY);
-  const pts=arr=>arr.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  let grid='';
-  for(let g=0;g<=4;g++){const gv=maxY*g/4,gy=y(gv);
-    grid+=`<line x1="${pl}" y1="${gy}" x2="${W-pr}" y2="${gy}" stroke="#eef1f5"/>`+
-          `<text x="${pl-8}" y="${gy+3}" text-anchor="end" font-size="10" fill="#8a99a8" font-family="JetBrains Mono,monospace">${fmt.n(gv)}</text>`;}
-  let xl='';
-  for(let i=0;i<H0;i+=3) xl+=`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-size="10" fill="#8a99a8" font-family="JetBrains Mono,monospace">M${i+1}</text>`;
-  const ceil=p.cap*p.upper/100;
-  const capY=y(p.cap).toFixed(1), ceilY=y(ceil).toFixed(1);
-  const recArea=`${pl},${y(0)} ${pts(p.recurring)} ${x(H0-1)},${y(0)}`;
-  let hire='';
-  if(p.hireMonth){ const hx=x(p.hireMonth-1);
-    hire=`<line x1="${hx}" y1="${pt}" x2="${hx}" y2="${pt+ih}" stroke="var(--risk)" stroke-width="1.5"/>`+
-         `<text x="${hx+4}" y="${pt+12}" font-size="10" fill="var(--risk)" font-family="JetBrains Mono,monospace">hire M${p.hireMonth}</text>`; }
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img">
-    ${grid}
-    <polygon points="${recArea}" fill="var(--rec-fill)" opacity="0.8"/>
-    <line x1="${pl}" y1="${capY}" x2="${x(H0-1)}" y2="${capY}" stroke="var(--cap)" stroke-width="2"/>
-    <line x1="${pl}" y1="${ceilY}" x2="${x(H0-1)}" y2="${ceilY}" stroke="var(--cap)" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
-    <polyline points="${pts(p.recurring)}" fill="none" stroke="var(--rec)" stroke-width="1.5" stroke-dasharray="2 2"/>
-    <polyline points="${pts(p.demand)}" fill="none" stroke="var(--dem)" stroke-width="2.5"/>
-    ${hire}${xl}
-  </svg>`;
+
+/* ---------- charts ---------- */
+function axes(W,H,pl,pr,pt,ih,maxY,fmtY){
+  let g='';
+  for(let i=0;i<=4;i++){ const gv=maxY*i/4, gy=pt+ih*(1-i/4);
+    g+=`<line x1="${pl}" y1="${gy}" x2="${W-pr}" y2="${gy}" stroke="#eef1f5"/>`+
+       `<text x="${pl-8}" y="${gy+3}" text-anchor="end" font-size="10" fill="#8a99a8" font-family="JetBrains Mono,monospace">${fmtY(gv)}</text>`; }
+  return g;
 }
-function paintProj(M, L){
-  const PL=pleversFor(M.key), p=M.project({...L,...PL},24), end=p.horizon-1;
-  el('psvg').innerHTML=projSvg(M,p);
-  el('plegend').innerHTML=
-    `<span><i style="background:var(--cap)"></i>Capacity + hire ceiling</span>`+
-    `<span><i style="background:var(--rec)"></i>Recurring floor</span>`+
-    `<span><i style="background:var(--dem)"></i>Total demand</span>`;
-  el('pcards').innerHTML=[
-    ['MRR at M'+p.horizon, fmt.usdk(p.mrr[end])+'/mo', 'from '+fmt.usdk(p.mrr[0])+'/mo now', 'good'],
-    ['Revenue at M'+p.horizon, fmt.usdk(p.revenue[end])+'/mo', 'from '+fmt.usdk(p.revenue[0])+'/mo now', 'neutral'],
-    ['Hire line', p.hireMonth?('Month '+p.hireMonth):('clear '+p.horizon+' mo'), p.hireMonth?('utilization crosses '+p.upper+'%'):'no hire needed', p.hireMonth?'bad':'good'],
-    ['Retainer clients', fmt.n1(p.clients[end]), 'from '+fmt.n1(p.clients[0])+' now', 'neutral']
-  ].map(([l,val,s,t])=>`<div class="card ${t}"><div class="l">${l}</div><div class="v">${val}</div><div class="s">${s}</div></div>`).join('');
-  const idx=[]; for(let i=2;i<p.horizon;i+=3) idx.push(i); if(idx[idx.length-1]!==end) idx.push(end);
-  const prows=[
-    ['MRR', p.mrr, v=>fmt.usdk(v)],
-    ['Recurring '+p.unit, p.recurring, fmt.n],
-    ['Project '+p.unit, p.project, fmt.n],
-    ['Utilization', p.utilization, fmt.pct],
-    ['Revenue / mo', p.revenue, v=>fmt.usdk(v)]
+function capChart(M,c){
+  const W=1080,H=280,pl=52,pr=16,pt=12,pb=30,iw=W-pl-pr,ih=H-pt-pb;
+  const maxY=Math.max(...c.capacity,...c.upper)*1.12||1, x=i=>pl+iw*(i/11), y=v=>pt+ih*(1-v/maxY);
+  const pts=a=>a.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const xl=MONTHS.map((m,i)=>`<text x="${x(i)}" y="${H-10}" text-anchor="middle" font-size="10" fill="#8a99a8" font-family="JetBrains Mono,monospace">${m[0]}</text>`).join('');
+  const selX=x(store.month);
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${axes(W,H,pl,pr,pt,ih,maxY,$n)}
+    <line x1="${selX}" y1="${pt}" x2="${selX}" y2="${pt+ih}" stroke="${ACCENTS[M.key]}" stroke-width="1.5" stroke-dasharray="3 3" opacity=".6"/>
+    <polygon points="${pl},${y(0)} ${pts(c.capacity)} ${x(11)},${y(0)}" fill="var(--cap-fill)" opacity=".45"/>
+    ${c.recurring?`<polygon points="${pl},${y(0)} ${pts(c.recurring)} ${x(11)},${y(0)}" fill="var(--rec-fill)" opacity=".85"/>`:''}
+    <polyline points="${pts(c.capacity)}" fill="none" stroke="var(--cap)" stroke-width="2"/>
+    <polyline points="${pts(c.committed)}" fill="none" stroke="var(--dem)" stroke-width="2.5"/>
+    <polyline points="${pts(c.upper)}" fill="none" stroke="var(--risk)" stroke-width="2" stroke-dasharray="6 4"/>${xl}</svg>`;
+}
+function cashChart(cf){
+  const W=1080,H=280,pl=58,pr=16,pt=14,pb=30,iw=W-pl-pr,ih=H-pt-pb,n=cf.weeks;
+  const vals=cf.bal.concat([cf.start]); const maxY=Math.max(...vals)*1.1||1, minY=Math.min(0,...vals);
+  const x=i=>pl+iw*(i/(n)), y=v=>pt+ih*(1-(v-minY)/(maxY-minY));
+  const balPts=[[0,cf.start]].concat(cf.bal.map((v,i)=>[i+1,v])).map(([i,v])=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  let bars='';
+  cf.net.forEach((nv,i)=>{ const bx=x(i+1)-6; const y0=y(0), yv=y(nv); const h=Math.abs(yv-y0);
+    bars+=`<rect x="${bx}" y="${Math.min(y0,yv)}" width="12" height="${h}" fill="${nv>=0?'var(--good)':'var(--risk)'}" opacity=".30"/>`; });
+  const zeroY=y(0);
+  const xl=Array.from({length:n},(_,i)=>`<text x="${x(i+1)}" y="${H-10}" text-anchor="middle" font-size="10" fill="#8a99a8" font-family="JetBrains Mono,monospace">W${i+1}</text>`).join('');
+  const troughX=x(cf.minWeek),troughY=y(cf.trough);
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${axes(W,H,pl,pr,pt,ih,maxY-minY,v=>$k(v+minY))}
+    <line x1="${pl}" y1="${zeroY}" x2="${W-pr}" y2="${zeroY}" stroke="#c9d2dc" stroke-width="1"/>
+    ${bars}
+    <polyline points="${balPts}" fill="none" stroke="var(--cap)" stroke-width="2.5"/>
+    <circle cx="${troughX}" cy="${troughY}" r="4" fill="var(--bad)"/>
+    <text x="${troughX}" y="${troughY-8}" text-anchor="middle" font-size="10" fill="var(--bad)" font-family="JetBrains Mono,monospace">trough ${$k(cf.trough)}</text>${xl}</svg>`;
+}
+function fcChart(fc){
+  const W=1080,H=280,pl=58,pr=16,pt=14,pb=30,iw=W-pl-pr,ih=H-pt-pb,n=fc.months.length;
+  const maxY=Math.max(...fc.totalRev)*1.15||1, x=i=>pl+iw*((i+0.5)/n), y=v=>pt+ih*(1-v/maxY);
+  const bw=Math.max(6,iw/n*0.6);
+  let bars='';
+  fc.months.forEach((_,i)=>{ const cx=x(i)-bw/2, rec=fc.recRev[i], prj=fc.projRev[i];
+    bars+=`<rect x="${cx}" y="${y(rec)}" width="${bw}" height="${y(0)-y(rec)}" fill="var(--rec)" opacity=".85"/>`+
+          `<rect x="${cx}" y="${y(rec+prj)}" width="${bw}" height="${y(0)-y(prj)}" fill="var(--dem)" opacity=".85"/>`; });
+  const ebPts=fc.ebitda.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const zeroY=y(0);
+  const xl=fc.months.map((m,i)=>`<text x="${x(i)}" y="${H-10}" text-anchor="middle" font-size="10" fill="#8a99a8" font-family="JetBrains Mono,monospace">M${m}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${axes(W,H,pl,pr,pt,ih,maxY,$k)}
+    ${bars}
+    <line x1="${pl}" y1="${zeroY}" x2="${W-pr}" y2="${zeroY}" stroke="#c9d2dc"/>
+    <polyline points="${ebPts}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>${xl}</svg>`;
+}
+const leg=items=>items.map(([c,t])=>`<span><i style="background:${c}"></i>${t}</span>`).join('');
+
+/* ---------- section painters ---------- */
+function peakMonth(M,c){ const arr=c.secondary&&M.key==='service'?c.secondary:c.utilization; let mi=0; arr.forEach((v,i)=>{if(v>arr[mi])mi=i;}); return mi; }
+
+function paintSummary(M){
+  const L=leversFor(M.key), ML=merged(M.key);
+  const c=M.compute(L), cf=M.cashflow(L), fc=M.forecast(ML,12), proj=M.project(ML,12);
+  const hasRev=!!c.rev;
+  const pm=peakMonth(M,c), vd=M.verdict(L,c,pm);
+  const ve=el('ex-verdict'); ve.className='verdict '+vd.tone;
+  ve.querySelector('h3').textContent=vd.headline;
+  ve.querySelector('p').textContent=(M.key==='nonprofit'?'Peak need · ':'Peak demand · '+MONTHS[pm]+' · ')+vd.detail;
+  const mrr=hasRev?c.rev.mrr:L.budget, totYr=hasRev?c.rev.totalYr:L.budget*12;
+  const recPct=hasRev?c.rev.recYr/(c.rev.totalYr||1):1;
+  const tiles=[
+    [M.key==='nonprofit'?'Monthly funding':'MRR', $k(mrr)+'/mo', M.key==='nonprofit'?'recurring funding':$p(recPct)+' of revenue','good'],
+    [M.key==='nonprofit'?'Funding run-rate':'Revenue run-rate', $k(totYr)+'/yr','annualized','neutral'],
+    [M.finLabels.bottom+' margin', $p(fc.margin[11]), 'month 12', fc.margin[11]>=0?'good':'bad'],
+    ['Cash trough', $k(cf.trough), 'week '+cf.minWeek+(cf.trough<0?' · goes negative':''), cf.trough<0?'bad':'neutral'],
+    ['Hire line', proj.hireMonth?('Month '+proj.hireMonth):'clear 12 mo', proj.hireMonth?'add capacity':'headroom', proj.hireMonth?'warn':'good']
   ];
-  el('pgrid').innerHTML=
-    `<tr><th>Metric</th>${idx.map(i=>`<th>M${p.months[i]}</th>`).join('')}</tr>`+
-    prows.map(([lab,arr,f])=>`<tr><td>${lab}</td>${idx.map(i=>`<td>${f(arr[i])}</td>`).join('')}</tr>`).join('');
+  el('ex-cards').innerHTML=tiles.map(([l,v,s,t])=>`<div class="card ${t}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+  // revenue split
+  if(hasRev){ el('revsplit').hidden=false; const r=c.rev,pr=r.totalYr>0?r.recYr/r.totalYr:0;
+    el('revsplit').innerHTML=`<div class="rs-bar"><div class="rs-rec" style="width:${(pr*100).toFixed(0)}%"></div></div>`+
+      `<div class="rs-labels"><span><b style="color:var(--rec)">${$k(r.recYr)}/yr</b> recurring (MRR ${$u(r.mrr)}/mo)</span>`+
+      `<span><b style="color:var(--dem)">${$k(r.projYr)}/yr</b> project</span></div>`;
+  } else el('revsplit').hidden=true;
+  // narrative
+  const unit=c.unit, bottom=M.finLabels.bottom.toLowerCase();
+  let narr;
+  if(M.key==='nonprofit'){
+    const unmet=Math.round(fc.totalRev[11]>0? (proj.demand[11]-proj.clients[11]):0);
+    narr=`At peak need you should <span class="hl">${vd.headline.split('—')[0].trim().toLowerCase()}</span>. Monthly funding is <b>${$u(mrr)}</b>, serving about <b>${$n(proj.clients[0])}</b> people against demand of <b>${$n(proj.demand[0])}</b>. The 13-week cash view bottoms at <b>${$u(cf.trough)}</b> in week ${cf.minWeek}. On trend, ${bottom} reaches <b>${$u(fc.ebitda[11])}/mo</b> by month 12 (${$p(fc.margin[11])} margin)${proj.hireMonth?`, and unmet need forces a capacity decision by month ${proj.hireMonth}`:''}.`;
+  } else {
+    narr=`At peak demand in ${MONTHS[pm]} you should <span class="hl">${vd.headline.split('—')[0].trim().toLowerCase()}</span>. Recurring revenue is <b>${$u(mrr)}/mo</b> (${$p(recPct)} of the book), on a <b>${$k(totYr)}/yr</b> run-rate. Cash bottoms at <b>${$u(cf.trough)}</b> in week ${cf.minWeek}${cf.trough<0?' — it goes negative, so secure a buffer':''}. On the current trajectory revenue reaches <b>${$k(fc.totalRev[11])}/mo</b> by month 12 at <b>${$p(fc.margin[11])}</b> ${bottom} margin${proj.hireMonth?`, and you cross the hire line in month ${proj.hireMonth}`:''}.`;
+  }
+  el('ex-narr').innerHTML=narr;
 }
 
+function paintCash(M){
+  const L=leversFor(M.key), cf=M.cashflow(L);
+  el('cash-cards').innerHTML=[
+    ['Starting cash',$k(cf.start),'today','neutral'],
+    ['Lowest balance',$k(cf.trough),'week '+cf.minWeek,cf.trough<0?'bad':(cf.trough<cf.start*0.5?'warn':'good')],
+    ['Ending cash (wk 13)',$k(cf.end),cf.end>=cf.start?'building':'drawing down',cf.end>=cf.start?'good':'warn'],
+    ['Avg weekly net',$k(cf.net.reduce((a,b)=>a+b,0)/cf.weeks),'in − out','neutral']
+  ].map(([l,v,s,t])=>`<div class="card ${t}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+  el('cash-svg').innerHTML=cashChart(cf);
+  el('cash-legend').innerHTML=leg([['var(--cap)','Running balance'],['var(--good)','Net positive week'],['var(--risk)','Net negative week']]);
+  const wk=i=>`W${i+1}`;
+  const rows=[['Cash in',cf.inflow],['Cash out',cf.outflow.map(v=>-v)],['Net',cf.net],['Balance',cf.bal]];
+  el('cash-grid').innerHTML=`<tr><th>Weekly ($)</th>${cf.inflow.map((_,i)=>`<th>${wk(i)}</th>`).join('')}</tr>`+
+    rows.map(([lab,arr],ri)=>`<tr class="${lab==='Balance'?'em':''}"><td>${lab}</td>${arr.map(v=>`<td class="${v<0?'neg':''}">${$k(v)}</td>`).join('')}</tr>`).join('');
+}
+
+function paintForecast(M){
+  const ML=merged(M.key), fc=M.forecast(ML,12), proj=M.project(ML,12), end=11;
+  el('fc-cards').innerHTML=[
+    [M.finLabels.revenue+' at M12',$k(fc.totalRev[end])+'/mo','from '+$k(fc.totalRev[0]),'neutral'],
+    [M.finLabels.bottom+' at M12',$k(fc.ebitda[end])+'/mo',$p(fc.margin[end])+' margin',fc.ebitda[end]>=0?'good':'bad'],
+    ['Recurring share',$p(fc.totalRev[end]>0?fc.recRev[end]/fc.totalRev[end]:0),'of M12 revenue','good'],
+    ['Hire line',proj.hireMonth?('Month '+proj.hireMonth):'clear 12 mo',proj.hireMonth?'plan the hire':'headroom',proj.hireMonth?'warn':'good']
+  ].map(([l,v,s,t])=>`<div class="card ${t}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+  el('fc-svg').innerHTML=fcChart(fc);
+  el('fc-legend').innerHTML=leg([['var(--rec)','Recurring revenue'],['var(--dem)','Project revenue'],['var(--accent)',M.finLabels.bottom]]);
+  const idx=[2,5,8,11], L=M.finLabels;
+  const rows=[['Recurring '+L.revenue.toLowerCase(),fc.recRev,'num'],['Project revenue',fc.projRev,'num'],['Total '+L.revenue.toLowerCase(),fc.totalRev,'em'],
+    [L.cost,fc.cost.map(v=>-v),'num'],[L.payroll,fc.payroll.map(v=>-v),'num'],[L.overhead,fc.overhead.map(v=>-v),'num'],[L.bottom,fc.ebitda,'em'],['Margin',fc.margin,'pct']];
+  el('fc-grid').innerHTML=`<tr><th>Monthly ($)</th>${idx.map(i=>`<th>M${fc.months[i]}</th>`).join('')}</tr>`+
+    rows.filter(r=>!(r[0]==='—')).map(([lab,arr,ty])=>`<tr class="${ty==='em'?'em':''}"><td>${lab}</td>${idx.map(i=>`<td class="${arr[i]<0?'neg':''}">${ty==='pct'?$p(arr[i]):$k(arr[i])}</td>`).join('')}</tr>`).join('');
+}
+
+function paintCapacity(M){
+  const L=leversFor(M.key), c=M.compute(L), v=M.vocab, m=store.month;
+  const vd=M.verdict(L,c,m); const ve=el('cap-verdict'); ve.className='verdict '+vd.tone;
+  ve.querySelector('h3').textContent=vd.headline; ve.querySelector('p').textContent=vd.detail;
+  el('cap-svg').innerHTML=capChart(M,c);
+  const totalName=M.key==='service'?'Expected total':M.key==='nonprofit'?'People served':'Booked total';
+  const upperName=M.key==='service'?'P90 surge':M.key==='nonprofit'?'Total need':'Booked + pipeline';
+  el('cap-legend').innerHTML=leg([['var(--cap)',v.capacityName]].concat(c.recurring?[['var(--rec)','Recurring floor']]:[]).concat([['var(--dem)',totalName],['var(--risk)',upperName]]));
+  const unit=c.unit, rows=[[v.capacityName+' ('+unit+')',c.capacity]];
+  if(c.recurring){ rows.push(['Recurring floor ('+unit+')',c.recurring]); rows.push([v.projNoun+' work ('+unit+')',c.projectDemand]); }
+  rows.push([totalName+' ('+unit+')',c.committed],[upperName+' ('+unit+')',c.upper]);
+  el('cap-grid').innerHTML=`<tr><th>Metric</th>${MONTHS.map((x,i)=>`<th${i===m?' style="color:'+ACCENTS[M.key]+'"':''}>${x}</th>`).join('')}</tr>`+
+    rows.map(([lab,arr])=>`<tr><td>${lab}</td>${arr.map((x,i)=>`<td${i===m?' class="sel"':''}>${$n(x)}</td>`).join('')}</tr>`).join('')+
+    `<tr><td>Utilization</td>${c.utilization.map((x,i)=>`<td${i===m?' class="sel"':''}>${$p(x)}</td>`).join('')}</tr>`+
+    (c.secondary?`<tr><td>${M.key==='nonprofit'?'Funding coverage':'Surge util'}</td>${c.secondary.map((x,i)=>`<td${i===m?' class="sel"':''}>${$p(x)}</td>`).join('')}</tr>`:'')+
+    `<tr><td>Action</td>${c.action.map((a,i)=>`<td${i===m?' class="sel"':''}><span class="pill ${a}">${(v.pill&&v.pill[a])||v[a]}</span></td>`).join('')}</tr>`;
+}
+
+function renderIntegrations(M){
+  el('integ-grid').innerHTML=`<tr><th>Data domain</th><th>Feeds</th><th>Suggested integration</th><th>Status</th></tr>`+
+    M.sources.map(s=>`<tr><td>${s.domain}</td><td style="text-align:left;font-family:Inter,sans-serif;font-weight:400;color:var(--muted);white-space:normal">${s.feeds}</td><td style="text-align:left;font-family:Inter,sans-serif;font-weight:400;color:var(--ink);white-space:normal">${s.tools}</td><td><span class="chip">Demo</span></td></tr>`).join('');
+}
+
+function paintAll(M){
+  document.documentElement.style.setProperty('--accent',ACCENTS[M.key]);
+  paintSummary(M); paintCash(M); paintForecast(M); paintCapacity(M);
+}
+
+/* ---------- export ---------- */
+function exportCSV(M){
+  const L=leversFor(M.key), ML=merged(M.key), cf=M.cashflow(L), fc=M.forecast(ML,12);
+  const q=s=>`"${String(s).replace(/"/g,'""')}"`; const R=[];
+  R.push(['Capacity Atlas — '+M.vocab.title]); R.push(['Generated',new Date().toISOString().slice(0,10)]); R.push([]);
+  R.push(['13-WEEK CASH FLOW']); R.push(['Week',...cf.inflow.map((_,i)=>'W'+(i+1))]);
+  R.push(['Cash in',...cf.inflow.map(v=>Math.round(v))]); R.push(['Cash out',...cf.outflow.map(v=>-Math.round(v))]);
+  R.push(['Net',...cf.net.map(v=>Math.round(v))]); R.push(['Balance',...cf.bal.map(v=>Math.round(v))]); R.push([]);
+  R.push(['FINANCIAL FORECAST (12 months)']); R.push(['Month',...fc.months.map(m=>'M'+m)]);
+  const L2=M.finLabels;
+  [['Recurring '+L2.revenue,fc.recRev],['Project revenue',fc.projRev],['Total '+L2.revenue,fc.totalRev],[L2.cost,fc.cost.map(v=>-v)],[L2.payroll,fc.payroll.map(v=>-v)],[L2.overhead,fc.overhead.map(v=>-v)],[L2.bottom,fc.ebitda]].forEach(([lab,arr])=>R.push([lab,...arr.map(v=>Math.round(v))]));
+  R.push(['Margin %',...fc.margin.map(v=>(v*100).toFixed(1))]);
+  const csv=R.map(r=>r.map(q).join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='capacity-atlas-'+M.key+'.csv'; a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ---------- render ---------- */
+function renderTabs(){
+  el('tabs').innerHTML=MODE_ORDER.map(k=>`<button class="tab ${k===store.mode?'active':''}" data-m="${k}">${MODES[k].vocab.title}</button>`).join('');
+  el('tabs').querySelectorAll('.tab').forEach(b=> b.onclick=()=>{ store.mode=b.dataset.m; save(); render(); window.scrollTo(0,0); });
+}
 function render(){
-  const M = MODES[store.mode];
-  const L = leversFor(store.mode);
+  const M=MODES[store.mode], L=leversFor(M.key), PL=pleversFor(M.key);
   renderTabs();
-  el('month').innerHTML = MONTHS.map((m,i)=>`<option value="${i}" ${i===store.month?'selected':''}>${m}</option>`).join('');
-  el('month').onchange = e=>{ store.month=+e.target.value; saveState(); paint(M, L); };
-  el('reset').onclick = ()=>{
-    store.levers[store.mode] = Object.fromEntries(M.fields.map(f=>[f.key,f.def]));
-    if(M.projFields) store.plevers[store.mode] = Object.fromEntries(M.projFields.map(f=>[f.key,f.def]));
-    saveState(); render();
-  };
-  renderInputs(M, L);
-  if(M.projFields) renderPInputs(M);
-  paint(M, L);
+  el('lens').innerHTML=`<b>${M.vocab.title}.</b> ${M.vocab.lens}`;
+  el('printhead').textContent=M.vocab.title+' — generated '+new Date().toISOString().slice(0,10);
+  el('month').innerHTML=MONTHS.map((m,i)=>`<option value="${i}" ${i===store.month?'selected':''}>${m}</option>`).join('');
+  el('month').onchange=e=>{ store.month=+e.target.value; save(); paintSummary(M); paintCapacity(M); };
+  renderFields('cap-inputs',M.fields,L,M);
+  renderFields('cash-inputs',M.cashFields||[],L,M);
+  renderFields('fc-inputs',M.projFields||[],PL,M);
+  renderIntegrations(M);
+  el('reset').onclick=()=>{ delete store.levers[M.key]; delete store.plevers[M.key]; save(); render(); };
+  el('btn-print').onclick=()=>window.print();
+  el('btn-csv').onclick=()=>exportCSV(M);
+  el('footnote').textContent='Demo data — replace with your own or connect a source (see Data & Integrations). Saved locally in your browser.';
+  paintAll(M);
 }
 render();
 </script>

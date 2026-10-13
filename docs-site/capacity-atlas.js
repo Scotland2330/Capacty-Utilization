@@ -301,6 +301,109 @@ const NONPROFIT = {
   }
 };
 
+/* ===========================================================================
+ * FINANCIAL LAYER — 13-week cash flow, P&L forecast, integration map.
+ * Shared builders + per-mode adapters attached below.
+ * =========================================================================== */
+function weeklyCashflow(f, weeks){
+  weeks = weeks || 13;
+  const wk = 12/52;
+  const recWeekly = (f.mrr||0)*wk, projWeekly = (f.projMoRev||0)*wk;
+  const cogsWeekly = (f.cogsPct||0)*(f.projMoRev||0)*wk;
+  const inflow=[],outflow=[],net=[],bal=[]; let b=f.startCash||0, trough=b, minWeek=0;
+  for(let w=1;w<=weeks;w++){
+    const inf = recWeekly + projWeekly;
+    let out = cogsWeekly;
+    if(w%2===0) out += (f.payrollMo||0)/2;   // payroll runs bi-weekly
+    if(w%4===0) out += (f.overheadMo||0);     // overhead posts monthly
+    const n = inf-out; b += n;
+    inflow.push(inf); outflow.push(out); net.push(n); bal.push(b);
+    if(b<trough){ trough=b; minWeek=w; }
+  }
+  return { weeks, inflow, outflow, net, bal, start:f.startCash||0, end:b, trough, minWeek };
+}
+function monthlyForecast(proj, f, months){
+  months = months || 12;
+  const o={months:[],recRev:[],projRev:[],totalRev:[],cost:[],payroll:[],overhead:[],ebitda:[],margin:[]};
+  for(let i=0;i<months;i++){
+    const rec=proj.mrr[i]||0, tot=proj.revenue[i]||0, prj=Math.max(0,tot-rec);
+    const cogs=(f.cogsPct||0)*tot, pay=f.payrollMo||0, ov=f.overheadMo||0, eb=tot-cogs-pay-ov;
+    o.months.push(i+1); o.recRev.push(rec); o.projRev.push(prj); o.totalRev.push(tot);
+    o.cost.push(cogs); o.payroll.push(pay); o.overhead.push(ov); o.ebitda.push(eb); o.margin.push(tot>0?eb/tot:0);
+  }
+  return o;
+}
+const CASH_PS = [
+  {key:'startCash', label:'Starting cash', min:0, max:3000000, step:10000, def:150000, prefix:'$'},
+  {key:'payrollMo', label:'Monthly payroll', min:0, max:800000, step:5000, def:95000, prefix:'$'},
+  {key:'overheadMo',label:'Monthly overhead', min:0, max:300000, step:2500, def:25000, prefix:'$'},
+  {key:'cogsPct',   label:'COGS (% of revenue)', min:0, max:60, step:1, def:15, suffix:'%'}
+];
+Object.assign(PRODUCT, {
+  finLabels:{revenue:'Revenue', cost:'COGS (materials/subs)', payroll:'Payroll', overhead:'Overhead', bottom:'EBITDA'},
+  cashFields: CASH_PS.map(x=>({...x})),
+  financials(L){ const c=this.compute(L); return {mrr:c.rev.mrr, projMoRev:c.rev.projYr/12, startCash:L.startCash, payrollMo:L.payrollMo, overheadMo:L.overheadMo, cogsPct:(L.cogsPct||0)/100}; },
+  cashflow(L,w){ return weeklyCashflow(this.financials(L), w); },
+  forecast(L,m){ return monthlyForecast(this.project(L, m||12), this.financials(L), m||12); },
+  sources:[
+    {domain:'Team & capacity', feeds:'Billable hours, PTO, headcount', tools:'HRIS / PSA — Gusto, BambooHR, Float, Harvest'},
+    {domain:'Recurring / MRR', feeds:'Retainer clients, fees, churn', tools:'Billing — Stripe, QuickBooks, Bill.com'},
+    {domain:'Project pipeline', feeds:'Jobs, win %, contract value', tools:'CRM — HubSpot, Salesforce, Pipedrive'},
+    {domain:'Delivery & time', feeds:'Hours logged, job progress', tools:'Time / PSA — Harvest, Toggl, ClickUp'},
+    {domain:'Cash & actuals', feeds:'Payroll, overhead, bank balance', tools:'Accounting + bank — QuickBooks, Xero, Plaid'}
+  ]
+});
+Object.assign(SERVICE, {
+  finLabels:{revenue:'Revenue', cost:'COGS (subs/filing)', payroll:'Payroll', overhead:'Overhead', bottom:'EBITDA'},
+  cashFields: CASH_PS.map(x=> x.key==='payrollMo'?{...x,def:85000}: x.key==='cogsPct'?{...x,def:5}: x.key==='startCash'?{...x,def:120000}:{...x}),
+  financials(L){ const c=this.compute(L); return {mrr:c.rev.mrr, projMoRev:c.rev.projYr/12, startCash:L.startCash, payrollMo:L.payrollMo, overheadMo:L.overheadMo, cogsPct:(L.cogsPct||0)/100}; },
+  cashflow(L,w){ return weeklyCashflow(this.financials(L), w); },
+  forecast(L,m){ return monthlyForecast(this.project(L, m||12), this.financials(L), m||12); },
+  sources:[
+    {domain:'Team & caseload', feeds:'Case workers, capacity, PTO', tools:'HRIS / PSA — Gusto, Rippling, Harvest'},
+    {domain:'Recurring / MRR', feeds:'Retainer clients, fees, churn', tools:'Billing — Stripe, QuickBooks, Bill.com'},
+    {domain:'Cases & intake', feeds:'Active cases, stages, deadlines', tools:'Case mgmt — Clio, Salesforce, Monday'},
+    {domain:'Pipeline', feeds:'Consults, close rate, new matters', tools:'CRM — HubSpot, Salesforce, Pipedrive'},
+    {domain:'Cash & actuals', feeds:'Payroll, overhead, bank balance', tools:'Accounting + bank — QuickBooks, Xero, Plaid'}
+  ]
+});
+Object.assign(NONPROFIT, {
+  finLabels:{revenue:'Funding', cost:'Program cost', payroll:'—', overhead:'Overhead', bottom:'Operating surplus'},
+  projFields:[
+    {key:'fundingGrowth', label:'Funding growth / yr', min:-20, max:60, step:5, def:10, suffix:'%'},
+    {key:'needGrowth',    label:'Need growth / yr',    min:-10, max:40, step:5, def:8,  suffix:'%'}
+  ],
+  cashFields:[
+    {key:'overheadMo', label:'Monthly overhead', min:0, max:150000, step:2500, def:12000, prefix:'$'}
+  ],
+  project(L,horizon){
+    horizon=horizon||12; const c=this.compute(L), deliverCap=c._deliverCap, baseNeed=avg(this.base.need);
+    const o={horizon,unit:'people',cap:deliverCap,months:[],clients:[],mrr:[],recurring:[],project:[],demand:[],utilization:[],revenue:[],hireMonth:null,upper:85};
+    for(let m=1;m<=horizon;m++){
+      const need=baseNeed*Math.pow(1+(L.needGrowth||0)/100, m/12);
+      const funding=(L.budget||0)*Math.pow(1+(L.fundingGrowth||0)/100, m/12);
+      const fundedCap=L.costPer>0?funding/L.costPer:0;
+      const served=Math.min(need, deliverCap, fundedCap);
+      if(need>Math.min(deliverCap,fundedCap) && o.hireMonth===null) o.hireMonth=m;
+      o.months.push(m); o.clients.push(served); o.mrr.push(funding); o.recurring.push(served);
+      o.project.push(0); o.demand.push(need); o.utilization.push(deliverCap>0?served/deliverCap:0); o.revenue.push(funding);
+    }
+    return o;
+  },
+  financials(L){ const c=this.compute(L); return {mrr:L.budget, projMoRev:0, startCash:L.reserves, payrollMo:avg(c.committed)*L.costPer, overheadMo:L.overheadMo, cogsPct:0}; },
+  cashflow(L,w){ return weeklyCashflow(this.financials(L), w); },
+  forecast(L,m){ m=m||12; const p=this.project(L,m); const o={months:[],recRev:[],projRev:[],totalRev:[],cost:[],payroll:[],overhead:[],ebitda:[],margin:[]};
+    for(let i=0;i<m;i++){ const funding=p.revenue[i], prog=p.recurring[i]*L.costPer, ov=L.overheadMo||0, surplus=funding-prog-ov;
+      o.months.push(i+1); o.recRev.push(funding); o.projRev.push(0); o.totalRev.push(funding); o.cost.push(prog); o.payroll.push(0); o.overhead.push(ov); o.ebitda.push(surplus); o.margin.push(funding>0?surplus/funding:0);
+    } return o; },
+  sources:[
+    {domain:'Program delivery', feeds:'Staff, volunteers, people served', tools:'Case/program mgmt — Apricot, CharityTracker'},
+    {domain:'Need & intake', feeds:'Waitlist, referrals, demand', tools:'Intake / CRM — Salesforce NPSP'},
+    {domain:'Funding', feeds:'Grants, donations, pledges', tools:'Donor CRM / grants — Bloomerang, Kindful, Instrumentl'},
+    {domain:'Cash & reserves', feeds:'Budget, spend, reserves', tools:'Accounting — QuickBooks NP, Sage Intacct'}
+  ]
+});
+
 const MODES = { product: PRODUCT, service: SERVICE, nonprofit: NONPROFIT };
 const MODE_ORDER = ['product', 'service', 'nonprofit'];
 
