@@ -45,13 +45,13 @@ const PRODUCT = {
     recNoun: 'Retainer', projNoun: 'Project'
   },
   base: {
-    capacity:  [820,820,940,900,900,860,860,820,780,820,820,600],
-    committed: [560,600,820,860,640,300,300,120, 80, 60, 40, 20], // PROJECT work only
-    pipeline:  [120,180,260,300,320,280,260,220,180,160,140,120]
+    capacity:  [1020,1020,1080,1080,1080,1020,1020,1020,990,1020,1020,960],
+    committed: [560,600,700,740,620,380,360,440,560,620,580,520], // PROJECT work only
+    pipeline:  [180,200,240,260,220,160,160,200,240,240,220,180]
   },
   fields: [
     { key: 'extraFTE',    label: 'Add / remove FTE',    min: -3, max: 6, step: 0.5, def: 0,   suffix: ' FTE' },
-    { key: 'winPct',      label: 'Pipeline win rate',   min: 0,  max: 100, step: 5, def: 60,  suffix: '%' },
+    { key: 'winPct',      label: 'Pipeline win rate',   min: 0,  max: 100, step: 5, def: 50,  suffix: '%' },
     { key: 'rate',        label: 'Project rate',        min: 80, max: 300, step: 5, def: 150, prefix: '$', suffix: '/hr' },
     { key: 'cost',        label: 'Loaded cost',         min: 30, max: 150, step: 5, def: 65,  prefix: '$', suffix: '/hr' },
     { key: 'recClients',  label: 'Retainer clients',    min: 0,  max: 40, step: 1,  def: 6,   suffix: '' },
@@ -61,9 +61,9 @@ const PRODUCT = {
     { key: 'lower',       label: 'Sell below',          min: 40, max: 85, step: 1,  def: 70,  suffix: '%' }
   ],
   projFields: [
-    { key: 'netNew',    label: 'Net-new retainers / mo', min: -2, max: 6, step: 0.5, def: 1,  suffix: '' },
+    { key: 'netNew',    label: 'Net-new retainers / mo', min: -2, max: 6, step: 0.5, def: 0.5,suffix: '' },
     { key: 'churn',     label: 'Monthly retainer churn', min: 0,  max: 15, step: 0.5, def: 2, suffix: '%' },
-    { key: 'projGrowth',label: 'Project growth / yr',    min: -30,max: 100, step: 5, def: 15, suffix: '%' }
+    { key: 'projGrowth',label: 'Project growth / yr',    min: -30,max: 100, step: 5, def: 8,  suffix: '%' }
   ],
   compute(L) {
     const recurring = MONTHS.map(() => L.recClients * L.recHrs);
@@ -145,24 +145,24 @@ const SERVICE = {
     recNoun: 'Retainer', projNoun: 'Project'
   },
   base: {
-    expected:  [300,320,360,380,300,260,280,340,360,300,280,260], // PROJECT caseload
+    expected:  [150,160,175,185,160,135,140,165,180,160,150,145], // PROJECT caseload (active matters)
     surgeMult: [1.15,1.20,1.35,1.50,1.25,1.10,1.15,1.30,1.45,1.50,1.25,1.15]
   },
   fields: [
-    { key: 'workers',    label: 'Case workers',        min: 1,  max: 12, step: 1,  def: 4,   suffix: ' ppl' },
-    { key: 'perWorker',  label: 'Cases / worker',      min: 40, max: 130, step: 5, def: 90,  suffix: '' },
+    { key: 'workers',    label: 'Case workers',        min: 1,  max: 15, step: 1,  def: 5,   suffix: ' ppl' },
+    { key: 'perWorker',  label: 'Cases / worker',      min: 20, max: 80, step: 5,  def: 45,  suffix: '' },
     { key: 'intakeMult', label: 'Project intake vs plan', min: 50, max: 200, step: 5, def: 100, suffix: '%' },
     { key: 'delay',      label: 'External-delay stretch', min: 80, max: 200, step: 5, def: 100, suffix: '%' },
-    { key: 'feePerCase', label: 'Project fee / case',  min: 1500, max: 12000, step: 250, def: 5000, prefix: '$' },
-    { key: 'recClients', label: 'Retainer clients',    min: 0,  max: 80, step: 1,  def: 15,  suffix: '' },
-    { key: 'recCases',   label: 'Cases / retainer',    min: 0,  max: 10, step: 1,  def: 3,   suffix: '' },
-    { key: 'recFee',     label: 'Retainer fee / mo',   min: 0,  max: 5000, step: 100, def: 800, prefix: '$' },
+    { key: 'revPerCaseMo', label: 'Revenue / active case · mo', min: 200, max: 3000, step: 50, def: 650, prefix: '$' },
+    { key: 'recClients', label: 'Retainer clients',    min: 0,  max: 80, step: 1,  def: 18,  suffix: '' },
+    { key: 'recCases',   label: 'Cases / retainer',    min: 0,  max: 10, step: 1,  def: 2,   suffix: '' },
+    { key: 'recFee',     label: 'Retainer fee / mo',   min: 0,  max: 8000, step: 100, def: 1400, prefix: '$' },
     { key: 'upper',      label: 'Add above',           min: 70, max: 100, step: 1, def: 90,  suffix: '%' }
   ],
   projFields: [
-    { key: 'netNew',    label: 'Net-new retainers / mo', min: -2, max: 8, step: 0.5, def: 2,  suffix: '' },
+    { key: 'netNew',    label: 'Net-new retainers / mo', min: -2, max: 8, step: 0.5, def: 1,  suffix: '' },
     { key: 'churn',     label: 'Monthly retainer churn', min: 0,  max: 15, step: 0.5, def: 3, suffix: '%' },
-    { key: 'projGrowth',label: 'Project growth / yr',    min: -30,max: 100, step: 5, def: 20, suffix: '%' }
+    { key: 'projGrowth',label: 'Project growth / yr',    min: -30,max: 100, step: 5, def: 10, suffix: '%' }
   ],
   compute(L) {
     const capHrs = L.workers * L.perWorker;
@@ -179,7 +179,7 @@ const SERVICE = {
       s > 1 ? 'over' : (utilization[i] < (L.upper - 25) / 100 ? 'under' : 'match'));
     const mrr = L.recClients * L.recFee;
     const recYr = mrr * 12;
-    const projYr = avg(projectDemand) * L.feePerCase;
+    const projYr = avg(projectDemand) * L.revPerCaseMo * 12;
     const rev = { mrr, recYr, projYr, totalYr: recYr + projYr };
     return { unit: 'cases', capacity, recurring, projectDemand, committed, likely, upper, secondary, utilization, action, rev, _L: L };
   },
@@ -219,7 +219,7 @@ const SERVICE = {
       const projLoad = baseProj * Math.pow(1 + L.projGrowth / 100, m / 12);
       const demand = recLoad + projLoad;
       const util = cap > 0 ? demand / cap : 0;
-      const revenue = mrr + projLoad * (L.feePerCase / 6); // recognize project fee over ~6 mo
+      const revenue = mrr + projLoad * L.revPerCaseMo; // active cases × monthly revenue/case
       if (util > L.upper / 100 && o.hireMonth === null) o.hireMonth = m;
       o.months.push(m); o.clients.push(clients); o.mrr.push(mrr);
       o.recurring.push(recLoad); o.project.push(projLoad); o.demand.push(demand);
@@ -242,14 +242,14 @@ const NONPROFIT = {
     pill: { under: 'Serve', match: 'Hold', over: 'Grow / Fund' },
     recNoun: '', projNoun: ''
   },
-  base: { need: [180,185,190,200,210,215,220,225,220,215,210,205] },
+  base: { need: [170,176,182,189,196,203,209,214,210,205,200,194] },
   fields: [
     { key: 'staff',      label: 'Program staff (FTE)', min: 1,  max: 20, step: 1,   def: 5,    suffix: ' FTE' },
-    { key: 'perStaff',   label: 'Served / staff · mo', min: 10, max: 60, step: 2,   def: 30,   suffix: '' },
+    { key: 'perStaff',   label: 'Served / staff · mo', min: 10, max: 60, step: 2,   def: 32,   suffix: '' },
     { key: 'volunteers', label: 'Volunteers (FTE-eq)', min: 0,  max: 20, step: 1,   def: 3,    suffix: '' },
-    { key: 'budget',     label: 'Monthly program $',   min: 20000, max: 300000, step: 5000, def: 90000, prefix: '$' },
-    { key: 'costPer',    label: 'Cost / beneficiary',  min: 100, max: 2000, step: 50, def: 450, prefix: '$' },
-    { key: 'reserves',   label: 'Cash reserves',       min: 0, max: 1000000, step: 25000, def: 250000, prefix: '$' }
+    { key: 'budget',     label: 'Monthly funding',     min: 20000, max: 400000, step: 5000, def: 95000, prefix: '$' },
+    { key: 'costPer',    label: 'Cost / beneficiary',  min: 100, max: 2000, step: 10, def: 420, prefix: '$' },
+    { key: 'reserves',   label: 'Cash reserves',       min: 0, max: 2000000, step: 25000, def: 250000, prefix: '$' }
   ],
   compute(L) {
     const perVol = 0.4;
@@ -310,7 +310,7 @@ function weeklyCashflow(f, weeks){
   const wk = 12/52;
   const recWeekly = (f.mrr||0)*wk, projWeekly = (f.projMoRev||0)*wk;
   const cogsWeekly = (f.cogsPct||0)*(f.projMoRev||0)*wk;
-  const inflow=[],outflow=[],net=[],bal=[]; let b=f.startCash||0, trough=b, minWeek=0;
+  const inflow=[],outflow=[],net=[],bal=[]; let b=f.startCash||0, trough=Infinity, minWeek=1;
   for(let w=1;w<=weeks;w++){
     const inf = recWeekly + projWeekly;
     let out = cogsWeekly;
@@ -324,10 +324,13 @@ function weeklyCashflow(f, weeks){
 }
 function monthlyForecast(proj, f, months){
   months = months || 12;
+  const tot0 = proj.revenue[0] || 1;
   const o={months:[],recRev:[],projRev:[],totalRev:[],cost:[],payroll:[],overhead:[],ebitda:[],margin:[]};
   for(let i=0;i<months;i++){
     const rec=proj.mrr[i]||0, tot=proj.revenue[i]||0, prj=Math.max(0,tot-rec);
-    const cogs=(f.cogsPct||0)*tot, pay=f.payrollMo||0, ov=f.overheadMo||0, eb=tot-cogs-pay-ov;
+    const cogs=(f.cogsPct||0)*tot;
+    const pay=(f.payrollMo||0)*(1+0.6*((tot/tot0)-1)); // payroll scales ~60% with revenue growth (you hire as you grow)
+    const ov=f.overheadMo||0, eb=tot-cogs-pay-ov;
     o.months.push(i+1); o.recRev.push(rec); o.projRev.push(prj); o.totalRev.push(tot);
     o.cost.push(cogs); o.payroll.push(pay); o.overhead.push(ov); o.ebitda.push(eb); o.margin.push(tot>0?eb/tot:0);
   }
@@ -341,7 +344,7 @@ const CASH_PS = [
 ];
 Object.assign(PRODUCT, {
   finLabels:{revenue:'Revenue', cost:'COGS (materials/subs)', payroll:'Payroll', overhead:'Overhead', bottom:'EBITDA'},
-  cashFields: CASH_PS.map(x=>({...x})),
+  cashFields: CASH_PS.map(x=> x.key==='payrollMo'?{...x,def:86000}: x.key==='overheadMo'?{...x,def:20000}: x.key==='cogsPct'?{...x,def:12}:{...x}),
   financials(L){ const c=this.compute(L); return {mrr:c.rev.mrr, projMoRev:c.rev.projYr/12, startCash:L.startCash, payrollMo:L.payrollMo, overheadMo:L.overheadMo, cogsPct:(L.cogsPct||0)/100}; },
   cashflow(L,w){ return weeklyCashflow(this.financials(L), w); },
   forecast(L,m){ return monthlyForecast(this.project(L, m||12), this.financials(L), m||12); },
@@ -355,7 +358,7 @@ Object.assign(PRODUCT, {
 });
 Object.assign(SERVICE, {
   finLabels:{revenue:'Revenue', cost:'COGS (subs/filing)', payroll:'Payroll', overhead:'Overhead', bottom:'EBITDA'},
-  cashFields: CASH_PS.map(x=> x.key==='payrollMo'?{...x,def:85000}: x.key==='cogsPct'?{...x,def:5}: x.key==='startCash'?{...x,def:120000}:{...x}),
+  cashFields: CASH_PS.map(x=> x.key==='payrollMo'?{...x,def:68000}: x.key==='overheadMo'?{...x,def:24000}: x.key==='cogsPct'?{...x,def:5}: x.key==='startCash'?{...x,def:140000}:{...x}),
   financials(L){ const c=this.compute(L); return {mrr:c.rev.mrr, projMoRev:c.rev.projYr/12, startCash:L.startCash, payrollMo:L.payrollMo, overheadMo:L.overheadMo, cogsPct:(L.cogsPct||0)/100}; },
   cashflow(L,w){ return weeklyCashflow(this.financials(L), w); },
   forecast(L,m){ return monthlyForecast(this.project(L, m||12), this.financials(L), m||12); },
@@ -370,8 +373,8 @@ Object.assign(SERVICE, {
 Object.assign(NONPROFIT, {
   finLabels:{revenue:'Funding', cost:'Program cost', payroll:'—', overhead:'Overhead', bottom:'Operating surplus'},
   projFields:[
-    {key:'fundingGrowth', label:'Funding growth / yr', min:-20, max:60, step:5, def:10, suffix:'%'},
-    {key:'needGrowth',    label:'Need growth / yr',    min:-10, max:40, step:5, def:8,  suffix:'%'}
+    {key:'fundingGrowth', label:'Funding growth / yr', min:-20, max:60, step:5, def:6, suffix:'%'},
+    {key:'needGrowth',    label:'Need growth / yr',    min:-10, max:40, step:5, def:6,  suffix:'%'}
   ],
   cashFields:[
     {key:'overheadMo', label:'Monthly overhead', min:0, max:150000, step:2500, def:12000, prefix:'$'}
